@@ -1,31 +1,43 @@
 """
 ==========================================================================
-  🛸 SUPER-DRONE | Realistic FPV Quadcopter Frame STL Generator
-  Based on TBS Source One V5 Dimensions (226mm Wheelbase, 5-inch props)
+  ✈️ SUPER-WING 5G | Stealth Delta Flying Wing STL Generator
   
-  Generates 3D-printable parts:
-    1. Bottom Plate (main chassis with stack mounting holes)
-    2. Top Plate (electronics protector)
-    3. Arms x4 (with integrated motor mount tubes)
-    4. Camera Mount (19mm micro FPV camera cradle)
-    5. Battery Pad (anti-slip landing pad)
-    6. Samsung S21 FE Phone Cradle (FPV nose mount)
-    7. Full Assembled Frame (visualization)
+  Generates 3D-printable fuselage/structural parts for a stealth
+  delta flying wing UAV, inspired by B-2 Spirit / X-47B / nEUROn
   
-  All dimensions in mm, based on industry standard specs:
-    - Wheelbase: 226mm (motor-to-motor diagonal)
-    - Arm thickness: 6mm (3D print optimized to 7mm)
-    - Stack mount: 30.5 x 30.5mm (M3) + 20 x 20mm (M2)
-    - Motor mount: 16 x 19mm (M3 bolt pattern for 2207 motors)
-    - Camera: 19mm micro mount spacing
-    - Standoff height: 25mm
-    
-  Print Settings (recommended):
-    - Material: PETG or CF-PETG (NOT PLA - too brittle)
-    - Layer height: 0.2mm
-    - Infill: 60%+ Gyroid pattern
-    - Walls: 4 minimum
-    - Supports: Yes for camera mount & phone cradle
+  Wing Specifications (from BOM):
+    - Wingspan: 900mm (medium delta)
+    - Root chord: 450mm
+    - Tip chord: 80mm  
+    - Sweep angle: ~35 degrees
+    - Airframe: EPP foam core with 3D carbon fiber vinyl wrap
+    - Propulsion: 1x 2207 brushless pusher motor (rear)
+    - Control: 2x MG90S elevon servos
+    - FPV: Samsung S21 FE phone in nose cradle
+    - Electronics: ESP32 Super Mini + MPU-6050 IMU
+  
+  Generated Parts:
+    1. Fuselage Center Body (main avionics bay)
+    2. Nose Cone (stealth faceted, S21 FE camera window)
+    3. Motor Mount Bulkhead (rear pusher, 2207 M3 pattern)
+    4. Wing Root Ribs (structural, left + right)
+    5. Elevon Servo Mount (2x, for MG90S servos)
+    6. Battery Sled (4S 18650 Li-Ion tray)
+    7. ESP32 + MPU-6050 Avionics Tray
+    8. Full Assembly Preview
+  
+  Design Philosophy:
+    - Stealth angular facets on all surfaces (no curves on exterior)
+    - Sharp leading edges with planform alignment
+    - Internal electronics bay with access hatch
+    - Interlocking tabs for carbon fiber spar pass-through
+    - All parts designed to bond into EPP foam wing core
+  
+  Print Settings:
+    - Material: LW-PLA (lightweight) or PETG
+    - Layer: 0.2mm
+    - Infill: 20% for LW-PLA, 40% for PETG
+    - Walls: 3
 ==========================================================================
 """
 
@@ -34,73 +46,64 @@ import struct
 import os
 
 # ============================================================================
-#  CONFIGURATION - Based on TBS Source One V5 / Real FPV Frame Standards
+#  CONFIGURATION — Based on Real Delta Wing UAV Dimensions
 # ============================================================================
 CFG = {
-    # Frame Geometry
-    'wheelbase': 226.0,         # mm diagonal motor-to-motor
-    'frame_type': 'true_x',     # true_x | stretched_x | deadcat
+    # Overall Wing Planform
+    'wingspan': 900.0,            # mm total wingspan
+    'root_chord': 450.0,          # mm chord at centerline
+    'tip_chord': 80.0,            # mm chord at wingtip
+    'sweep_angle': 35.0,          # degrees leading edge sweep
+    'wing_thickness_root': 45.0,  # mm max thickness at root (10% t/c ratio)
+    'wing_thickness_tip': 12.0,   # mm thickness at tip
     
-    # Center Plate
-    'plate_width': 40.0,        # mm center body width
-    'plate_length': 50.0,       # mm center body length
-    'bottom_plate_thick': 3.0,  # mm
-    'top_plate_thick': 2.0,     # mm
-    'plate_corner_r': 5.0,      # mm corner radius
+    # Fuselage Center Body
+    'fuse_length': 500.0,         # mm nose to tail
+    'fuse_width': 120.0,          # mm at widest (blended into wing)
+    'fuse_height': 55.0,          # mm max height
+    'fuse_wall': 2.5,             # mm wall thickness
     
-    # Arms
-    'arm_width': 12.0,          # mm (wider than CF for 3D print strength)
-    'arm_height': 7.0,          # mm (thicker than CF 6mm for 3D print)
-    'arm_taper': 0.7,           # taper ratio at motor end (narrower tip)
+    # Nose Section
+    'nose_length': 160.0,         # mm from front tip to fuselage start
+    'nose_facets': 6,             # number of stealth facets
     
     # Motor Mount
-    'motor_bolt_w': 16.0,       # mm M3 bolt pattern width
-    'motor_bolt_l': 19.0,       # mm M3 bolt pattern length  
-    'motor_tube_od': 28.0,      # mm motor seat outer diameter
-    'motor_tube_id': 22.0,      # mm motor seat inner diameter (motor bell)
-    'motor_tube_h': 5.0,        # mm motor seat tube height
-    'motor_bolt_d': 3.2,        # mm M3 bolt hole diameter
+    'motor_bolt_w': 16.0,         # mm M3 bolt pattern
+    'motor_bolt_l': 19.0,         # mm M3 bolt pattern
+    'motor_bolt_d': 3.2,          # mm M3 hole diameter
+    'motor_mount_dia': 30.0,      # mm motor mount ring OD
     
-    # Stack Mount
-    'stack_30': 30.5,           # mm 30.5x30.5 FC/ESC pattern
-    'stack_20': 20.0,           # mm 20x20 mini FC pattern
-    'stack_bolt_d': 3.2,        # mm M3 bolt holes
-    'standoff_h': 25.0,         # mm standoff height
-    'standoff_od': 7.0,         # mm standoff outer diameter
+    # Samsung S21 FE 
+    'phone_w': 77.9,              # mm
+    'phone_l': 155.7,             # mm  
+    'phone_d': 7.9,               # mm
     
-    # Camera Mount
-    'cam_mount_w': 19.0,        # mm micro camera width
-    'cam_mount_h': 19.0,        # mm micro camera height
-    'cam_tilt_min': 0,          # degrees
-    'cam_tilt_max': 45,         # degrees
-    'cam_plate_thick': 2.5,     # mm
+    # Servos (MG90S)
+    'servo_w': 12.5,              # mm
+    'servo_l': 23.0,              # mm
+    'servo_h': 29.0,              # mm
+    'servo_tab_w': 32.5,          # mm with mounting tabs
     
-    # Battery Pad
-    'batt_pad_w': 35.0,         # mm
-    'batt_pad_l': 75.0,         # mm
-    'batt_pad_h': 2.0,          # mm
+    # Battery (4S 18650)
+    'cell_dia': 18.5,             # mm 18650 diameter
+    'cell_len': 65.0,             # mm 18650 length
+    'batt_cells': 4,              # 4S configuration
     
-    # S21 FE Phone Cradle
-    'phone_w': 77.9,            # mm Samsung S21 FE width
-    'phone_l': 155.7,           # mm Samsung S21 FE length
-    'phone_d': 7.9,             # mm Samsung S21 FE depth
-    'cradle_wall': 2.5,         # mm wall thickness
-    'cradle_lip': 3.0,          # mm retaining lip height
+    # ESP32 + MPU board
+    'esp32_w': 18.0,              # mm ESP32 Super Mini
+    'esp32_l': 25.4,              # mm
+    'mpu_w': 16.0,                # mm MPU-6050 breakout
+    'mpu_l': 21.0,                # mm
     
     # Mesh Quality
-    'circle_segments': 32,      # segments per circle
-    'fillet_segments': 6,       # segments per fillet
+    'segments': 24,
 }
 
 
 # ============================================================================
 #  BINARY STL WRITER
 # ============================================================================
-def write_binary_stl(filepath, triangles, header_text="SuperDrone Frame"):
-    """
-    Writes triangles to a standard 80-byte header binary STL file.
-    Each triangle: ((x1,y1,z1), (x2,y2,z2), (x3,y3,z3))
-    """
+def write_binary_stl(filepath, triangles, header_text="SuperWing STL"):
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     with open(filepath, 'wb') as f:
         header = header_text.encode('ascii')[:80].ljust(80, b'\0')
@@ -108,7 +111,6 @@ def write_binary_stl(filepath, triangles, header_text="SuperDrone Frame"):
         f.write(struct.pack('<I', len(triangles)))
         
         for v1, v2, v3 in triangles:
-            # Cross product normal
             ax, ay, az = v2[0]-v1[0], v2[1]-v1[1], v2[2]-v1[2]
             bx, by, bz = v3[0]-v1[0], v3[1]-v1[1], v3[2]-v1[2]
             nx = ay*bz - az*by
@@ -124,15 +126,15 @@ def write_binary_stl(filepath, triangles, header_text="SuperDrone Frame"):
             f.write(struct.pack('<fff', *v1))
             f.write(struct.pack('<fff', *v2))
             f.write(struct.pack('<fff', *v3))
-            f.write(struct.pack('<H', 0))  # attribute byte count
+            f.write(struct.pack('<H', 0))
 
 
 # ============================================================================
-#  MESH PRIMITIVE GENERATORS
+#  MESH PRIMITIVES
 # ============================================================================
 
 def make_box(cx, cy, cz, dx, dy, dz):
-    """Axis-aligned box centered at (cx,cy,cz) with dimensions (dx,dy,dz)."""
+    """Box centered at (cx,cy,cz) with dims (dx,dy,dz)."""
     hx, hy, hz = dx/2, dy/2, dz/2
     v = [
         (cx-hx, cy-hy, cz-hz), (cx+hx, cy-hy, cz-hz),
@@ -141,677 +143,868 @@ def make_box(cx, cy, cz, dx, dy, dz):
         (cx+hx, cy+hy, cz+hz), (cx-hx, cy+hy, cz+hz),
     ]
     faces = [
-        (0,2,1),(0,3,2),  # bottom -Z
-        (4,5,6),(4,6,7),  # top +Z
-        (0,1,5),(0,5,4),  # front -Y
-        (2,3,7),(2,7,6),  # back +Y
-        (0,4,7),(0,7,3),  # left -X
-        (1,2,6),(1,6,5),  # right +X
+        (0,2,1),(0,3,2), (4,5,6),(4,6,7),
+        (0,1,5),(0,5,4), (2,3,7),(2,7,6),
+        (0,4,7),(0,7,3), (1,2,6),(1,6,5),
     ]
     return [(v[a], v[b], v[c]) for a,b,c in faces]
 
 
-def make_cylinder(cx, cy, cz, r, h, segments=None):
-    """Solid cylinder centered at (cx,cy) from cz to cz+h."""
-    seg = segments or CFG['circle_segments']
+def make_cylinder(cx, cy, cz, r, h, segments=24):
     tris = []
     top_z = cz + h
-    
-    for i in range(seg):
-        a1 = 2*math.pi * i / seg
-        a2 = 2*math.pi * (i+1) / seg
+    for i in range(segments):
+        a1 = 2*math.pi * i / segments
+        a2 = 2*math.pi * (i+1) / segments
         x1, y1 = cx + r*math.cos(a1), cy + r*math.sin(a1)
         x2, y2 = cx + r*math.cos(a2), cy + r*math.sin(a2)
-        
-        # Side walls
         tris.append(((x1,y1,cz), (x2,y2,cz), (x2,y2,top_z)))
         tris.append(((x1,y1,cz), (x2,y2,top_z), (x1,y1,top_z)))
-        
-        # Bottom cap (fan from center)
         tris.append(((cx,cy,cz), (x2,y2,cz), (x1,y1,cz)))
-        
-        # Top cap
         tris.append(((cx,cy,top_z), (x1,y1,top_z), (x2,y2,top_z)))
-    
     return tris
 
 
-def make_tube(cx, cy, cz, r_outer, r_inner, h, segments=None):
-    """Hollow tube (cylinder with hole) centered at (cx,cy)."""
-    seg = segments or CFG['circle_segments']
+def make_tube(cx, cy, cz, r_out, r_in, h, segments=24):
     tris = []
     top_z = cz + h
-    
-    for i in range(seg):
-        a1 = 2*math.pi * i / seg
-        a2 = 2*math.pi * (i+1) / seg
-        
-        # Outer points
-        ox1, oy1 = cx + r_outer*math.cos(a1), cy + r_outer*math.sin(a1)
-        ox2, oy2 = cx + r_outer*math.cos(a2), cy + r_outer*math.sin(a2)
-        
-        # Inner points
-        ix1, iy1 = cx + r_inner*math.cos(a1), cy + r_inner*math.sin(a1)
-        ix2, iy2 = cx + r_inner*math.cos(a2), cy + r_inner*math.sin(a2)
-        
-        # Outer wall
-        tris.append(((ox1,oy1,cz), (ox2,oy2,cz), (ox2,oy2,top_z)))
-        tris.append(((ox1,oy1,cz), (ox2,oy2,top_z), (ox1,oy1,top_z)))
-        
-        # Inner wall (reversed normals - face inward)
-        tris.append(((ix1,iy1,cz), (ix1,iy1,top_z), (ix2,iy2,top_z)))
-        tris.append(((ix1,iy1,cz), (ix2,iy2,top_z), (ix2,iy2,cz)))
-        
-        # Bottom annular ring
-        tris.append(((ox1,oy1,cz), (ix1,iy1,cz), (ix2,iy2,cz)))
-        tris.append(((ox1,oy1,cz), (ix2,iy2,cz), (ox2,oy2,cz)))
-        
-        # Top annular ring
-        tris.append(((ox1,oy1,top_z), (ox2,oy2,top_z), (ix2,iy2,top_z)))
-        tris.append(((ox1,oy1,top_z), (ix2,iy2,top_z), (ix1,iy1,top_z)))
-    
+    for i in range(segments):
+        a1 = 2*math.pi * i / segments
+        a2 = 2*math.pi * (i+1) / segments
+        ox1, oy1 = cx + r_out*math.cos(a1), cy + r_out*math.sin(a1)
+        ox2, oy2 = cx + r_out*math.cos(a2), cy + r_out*math.sin(a2)
+        ix1, iy1 = cx + r_in*math.cos(a1), cy + r_in*math.sin(a1)
+        ix2, iy2 = cx + r_in*math.cos(a2), cy + r_in*math.sin(a2)
+        # Outer
+        tris.append(((ox1,oy1,cz),(ox2,oy2,cz),(ox2,oy2,top_z)))
+        tris.append(((ox1,oy1,cz),(ox2,oy2,top_z),(ox1,oy1,top_z)))
+        # Inner
+        tris.append(((ix1,iy1,cz),(ix1,iy1,top_z),(ix2,iy2,top_z)))
+        tris.append(((ix1,iy1,cz),(ix2,iy2,top_z),(ix2,iy2,cz)))
+        # Bottom ring
+        tris.append(((ox1,oy1,cz),(ix1,iy1,cz),(ix2,iy2,cz)))
+        tris.append(((ox1,oy1,cz),(ix2,iy2,cz),(ox2,oy2,cz)))
+        # Top ring
+        tris.append(((ox1,oy1,top_z),(ox2,oy2,top_z),(ix2,iy2,top_z)))
+        tris.append(((ox1,oy1,top_z),(ix2,iy2,top_z),(ix1,iy1,top_z)))
     return tris
 
 
-def make_rounded_plate(cx, cy, cz, w, l, h, corner_r, segments=None):
-    """Plate with rounded corners centered at (cx,cy,cz)."""
-    seg = segments or max(8, CFG['fillet_segments'])
+def make_quad(v0, v1, v2, v3):
+    """Two triangles from 4 vertices (counter-clockwise)."""
+    return [(v0, v1, v2), (v0, v2, v3)]
+
+
+def make_polygon_face(vertices, cz, flip=False):
+    """Fan-triangulate a polygon from center."""
+    n = len(vertices)
+    if n < 3:
+        return []
+    cx = sum(v[0] for v in vertices) / n
+    cy = sum(v[1] for v in vertices) / n
+    center = (cx, cy, cz)
     tris = []
+    for i in range(n):
+        j = (i+1) % n
+        if flip:
+            tris.append((center, (vertices[j][0], vertices[j][1], cz),
+                         (vertices[i][0], vertices[i][1], cz)))
+        else:
+            tris.append((center, (vertices[i][0], vertices[i][1], cz),
+                         (vertices[j][0], vertices[j][1], cz)))
+    return tris
+
+
+# ============================================================================
+#  STEALTH WING PROFILE GENERATOR
+# ============================================================================
+
+def get_stealth_profile(y_station, half_span, root_chord, tip_chord, 
+                        sweep_rad, root_thick, tip_thick):
+    """
+    Returns the cross-section profile at a given spanwise station y.
+    Profile is a stealth-faceted diamond shape (6-sided hexagonal airfoil).
     
-    hw, hl = w/2, l/2
-    r = min(corner_r, hw, hl)
+    Returns: (leading_edge_x, trailing_edge_x, thickness, facet_vertices[])
+    y_station: distance from centerline (0 = root, half_span = tip)
+    """
+    t = y_station / half_span  # 0..1
     
-    # Corner centers
-    corners = [
-        (cx + hw - r, cy + hl - r),  # top-right
-        (cx - hw + r, cy + hl - r),  # top-left
-        (cx - hw + r, cy - hl + r),  # bottom-left
-        (cx + hw - r, cy - hl + r),  # bottom-right
+    # Chord at this station (linear taper)
+    chord = root_chord + (tip_chord - root_chord) * t
+    
+    # Leading edge position (swept back)
+    le_x = y_station * math.tan(sweep_rad)
+    
+    # Trailing edge position
+    te_x = le_x + chord
+    
+    # Thickness at this station (linear taper)
+    thick = root_thick + (tip_thick - root_thick) * t
+    
+    # Stealth diamond airfoil profile (6 facet points)
+    # Top surface has angular facets (2 flat panels), bottom is flatter
+    ht = thick / 2
+    
+    mid_x = le_x + chord * 0.35  # max thickness at 35% chord
+    
+    facets = [
+        (le_x, 0),                      # 0: Leading edge (sharp point)
+        (le_x + chord*0.15, ht*0.6),    # 1: Upper front facet
+        (mid_x, ht),                     # 2: Upper peak (max thickness)
+        (le_x + chord*0.70, ht*0.5),    # 3: Upper rear facet
+        (te_x, 0),                       # 4: Trailing edge (sharp)
+        (le_x + chord*0.70, -ht*0.3),   # 5: Lower rear
+        (mid_x, -ht*0.45),              # 6: Lower peak
+        (le_x + chord*0.15, -ht*0.35),  # 7: Lower front
     ]
     
-    # Generate perimeter points
-    perimeter = []
-    for ci, (ccx, ccy) in enumerate(corners):
-        start_angle = ci * math.pi / 2
-        for j in range(seg + 1):
-            a = start_angle + j * (math.pi / 2) / seg
-            px = ccx + r * math.cos(a)
-            py = ccy + r * math.sin(a)
-            perimeter.append((px, py))
+    return facets
+
+
+def loft_between_profiles(prof_a, y_a, prof_b, y_b):
+    """
+    Create triangulated surface between two airfoil profiles at different Y stations.
+    Each profile is a list of (x, z) 2D points.
+    """
+    tris = []
+    n = len(prof_a)
+    assert len(prof_b) == n
     
-    n = len(perimeter)
-    top_z = cz + h
-    
-    # Top and bottom faces (fan triangulation)
     for i in range(n):
         j = (i + 1) % n
-        p1 = perimeter[i]
-        p2 = perimeter[j]
         
-        # Bottom face
-        tris.append(((cx, cy, cz), (p2[0], p2[1], cz), (p1[0], p1[1], cz)))
-        # Top face
-        tris.append(((cx, cy, top_z), (p1[0], p1[1], top_z), (p2[0], p2[1], top_z)))
+        # 4 corners of the quad
+        v0 = (prof_a[i][0], y_a, prof_a[i][1])
+        v1 = (prof_a[j][0], y_a, prof_a[j][1])
+        v2 = (prof_b[j][0], y_b, prof_b[j][1])
+        v3 = (prof_b[i][0], y_b, prof_b[i][1])
         
-        # Side walls
-        tris.append(((p1[0], p1[1], cz), (p2[0], p2[1], cz), (p2[0], p2[1], top_z)))
-        tris.append(((p1[0], p1[1], cz), (p2[0], p2[1], top_z), (p1[0], p1[1], top_z)))
+        tris += make_quad(v0, v1, v2, v3)
     
     return tris
 
 
-def make_tapered_arm(x1, y1, x2, y2, z, w_start, w_end, h):
-    """
-    Arm from (x1,y1) to (x2,y2) at height z, tapering from w_start to w_end.
-    Creates a proper 3D beam with trapezoidal cross-section.
-    """
+def cap_profile(profile, y_station, flip=False):
+    """Close an airfoil profile at a given Y station."""
+    verts_3d = [(p[0], y_station, p[1]) for p in profile]
+    n = len(verts_3d)
+    cx = sum(v[0] for v in verts_3d) / n
+    cz = sum(v[2] for v in verts_3d) / n
+    center = (cx, y_station, cz)
+    
     tris = []
-    
-    # Direction vector
-    dx, dy = x2 - x1, y2 - y1
-    length = math.sqrt(dx*dx + dy*dy)
-    if length < 1e-6:
-        return tris
-    
-    # Unit direction and perpendicular
-    ux, uy = dx/length, dy/length
-    px, py = -uy, ux  # perpendicular (left)
-    
-    # Number of segments along arm length for smooth taper
-    n_seg = 12
-    
-    prev_points = None
-    for i in range(n_seg + 1):
-        t = i / n_seg
-        # Position along arm
-        mx = x1 + dx * t
-        my = y1 + dy * t
-        
-        # Width at this point (linear taper)
-        w = w_start + (w_end - w_start) * t
-        hw = w / 2
-        hh = h / 2
-        
-        # 4 corners of cross-section at this position
-        points = [
-            (mx - px*hw, my - py*hw, z - hh),  # bottom-left
-            (mx + px*hw, my + py*hw, z - hh),  # bottom-right
-            (mx + px*hw, my + py*hw, z + hh),  # top-right
-            (mx - px*hw, my - py*hw, z + hh),  # top-left
-        ]
-        
-        if prev_points is not None:
-            pp = prev_points
-            cp = points
-            # Connect 4 faces between segments
-            for f in range(4):
-                nf = (f + 1) % 4
-                tris.append((pp[f], cp[f], cp[nf]))
-                tris.append((pp[f], cp[nf], pp[nf]))
-        
-        prev_points = points
-    
-    # End caps
-    # Start cap
-    t = 0
-    mx, my = x1, y1
-    w = w_start
-    hw, hh = w/2, h/2
-    cap_s = [
-        (mx - px*hw, my - py*hw, z - hh),
-        (mx + px*hw, my + py*hw, z - hh),
-        (mx + px*hw, my + py*hw, z + hh),
-        (mx - px*hw, my - py*hw, z + hh),
-    ]
-    tris.append((cap_s[0], cap_s[2], cap_s[1]))
-    tris.append((cap_s[0], cap_s[3], cap_s[2]))
-    
-    # End cap
-    mx, my = x2, y2
-    w = w_end
-    hw = w/2
-    cap_e = [
-        (mx - px*hw, my - py*hw, z - hh),
-        (mx + px*hw, my + py*hw, z - hh),
-        (mx + px*hw, my + py*hw, z + hh),
-        (mx - px*hw, my - py*hw, z + hh),
-    ]
-    tris.append((cap_e[0], cap_e[1], cap_e[2]))
-    tris.append((cap_e[0], cap_e[2], cap_e[3]))
-    
+    for i in range(n):
+        j = (i+1) % n
+        if flip:
+            tris.append((center, verts_3d[j], verts_3d[i]))
+        else:
+            tris.append((center, verts_3d[i], verts_3d[j]))
     return tris
-
-
-def rotate_tris(tris, angle_deg, cx=0, cy=0):
-    """Rotate triangles around Z-axis by angle_deg around point (cx,cy)."""
-    a = math.radians(angle_deg)
-    cos_a, sin_a = math.cos(a), math.sin(a)
-    
-    rotated = []
-    for v1, v2, v3 in tris:
-        rv = []
-        for x, y, z in [v1, v2, v3]:
-            dx, dy = x - cx, y - cy
-            rx = cx + dx*cos_a - dy*sin_a
-            ry = cy + dx*sin_a + dy*cos_a
-            rv.append((rx, ry, z))
-        rotated.append(tuple(rv))
-    return rotated
-
-
-def translate_tris(tris, tx, ty, tz):
-    """Translate all triangles by (tx, ty, tz)."""
-    return [
-        ((v1[0]+tx, v1[1]+ty, v1[2]+tz),
-         (v2[0]+tx, v2[1]+ty, v2[2]+tz),
-         (v3[0]+tx, v3[1]+ty, v3[2]+tz))
-        for v1, v2, v3 in tris
-    ]
 
 
 # ============================================================================
 #  PART GENERATORS
 # ============================================================================
 
-def generate_bottom_plate():
+def generate_stealth_wing_body():
     """
-    Main chassis bottom plate with:
-    - Rounded rectangle body
-    - 30.5x30.5mm FC stack mounting posts
-    - 20x20mm mini stack mounting posts
-    - Arm attachment slots (4x)
-    - Front camera mount points
-    - Battery strap slots
+    Complete stealth delta wing outer shell:
+    - Swept leading edges aligned to single sweep angle (stealth planform)
+    - Faceted diamond airfoil cross-sections (no curves = low RCS)
+    - Blended wing body where fuselage merges into wing
+    - Sharp trailing edge
     """
-    tris = []
     c = CFG
+    tris = []
+    half_span = c['wingspan'] / 2
+    sweep_rad = math.radians(c['sweep_angle'])
     
-    # Main rounded plate body
-    tris += make_rounded_plate(
-        0, 0, 0,
-        c['plate_width'], c['plate_length'],
-        c['bottom_plate_thick'],
-        c['plate_corner_r']
-    )
+    # Generate wing surface by lofting between spanwise stations
+    n_stations = 16  # number of spanwise sections
     
-    # 30.5x30.5mm stack mounting standoff bases (4 corners)
-    half_30 = c['stack_30'] / 2
-    for sx in [-1, 1]:
-        for sy in [-1, 1]:
-            px = sx * half_30
-            py = sy * half_30
-            # Standoff base cylinder
-            tris += make_cylinder(
-                px, py, c['bottom_plate_thick'],
-                c['standoff_od']/2, 3.0,  # 3mm tall standoff base
-                segments=16
+    # Right wing (Y = 0 to +half_span)
+    for side in [1, -1]:  # +1 = right wing, -1 = left wing (mirrored)
+        prev_profile = None
+        prev_y = None
+        
+        for i in range(n_stations + 1):
+            t = i / n_stations
+            y = t * half_span
+            
+            profile = get_stealth_profile(
+                y, half_span,
+                c['root_chord'], c['tip_chord'],
+                sweep_rad,
+                c['wing_thickness_root'], c['wing_thickness_tip']
             )
-    
-    # 20x20mm mini stack mounting posts (4 corners)
-    half_20 = c['stack_20'] / 2
-    for sx in [-1, 1]:
-        for sy in [-1, 1]:
-            px = sx * half_20
-            py = sy * half_20
-            tris += make_cylinder(
-                px, py, c['bottom_plate_thick'],
-                2.5, 2.0,  # smaller posts for mini stack
-                segments=12
-            )
-    
-    # Arm attachment reinforcement pads (4 arms at 45-degree angles)
-    arm_angle_offset = c['plate_width'] / 2 - 2
-    for angle in [45, 135, 225, 315]:
-        rad = math.radians(angle)
-        pad_x = arm_angle_offset * math.cos(rad)
-        pad_y = arm_angle_offset * math.sin(rad)
-        pad = make_box(pad_x, pad_y, c['bottom_plate_thick']/2, 
-                       14, 14, c['bottom_plate_thick'])
-        tris += rotate_tris(pad, angle, pad_x, pad_y)
-    
-    # Front camera mount posts
-    cam_half = c['cam_mount_w'] / 2
-    for sx in [-1, 1]:
-        tris += make_cylinder(
-            sx * cam_half, -c['plate_length']/2 + 5, c['bottom_plate_thick'],
-            2.0, 4.0,
-            segments=12
-        )
-    
-    # Battery strap guide rails (2 transverse slots)
-    for by in [-12, 12]:
-        tris += make_box(0, by, c['bottom_plate_thick']/2, 
-                         c['plate_width'] + 6, 3, c['bottom_plate_thick'] + 1)
+            
+            # Mirror for left wing
+            actual_y = y * side
+            
+            if prev_profile is not None:
+                if side == 1:
+                    tris += loft_between_profiles(prev_profile, prev_y, 
+                                                   profile, actual_y)
+                else:
+                    # For left wing, reverse winding
+                    tris += loft_between_profiles(profile, actual_y,
+                                                   prev_profile, prev_y)
+            
+            prev_profile = profile
+            prev_y = actual_y
+        
+        # Cap the wingtip
+        if side == 1:
+            tris += cap_profile(profile, actual_y, flip=False)
+        else:
+            tris += cap_profile(profile, actual_y, flip=True)
     
     return tris
 
 
-def generate_top_plate():
+def generate_fuselage_bay():
     """
-    Top protection plate with:
-    - Rounded rectangle matching bottom plate
-    - Standoff mounting holes alignment
-    - Receiver antenna mount
-    - Status LED window
+    Internal electronics bay (sits inside the wing center section):
+    - Rectangular box with stealth-angled sides
+    - Open top (access hatch)
+    - Slots for carbon fiber spar pass-through
+    - Battery bay and avionics tray mounting rails
     """
-    tris = []
     c = CFG
-    z_base = c['standoff_h'] + c['bottom_plate_thick']
+    tris = []
     
-    # Main top plate
-    tris += make_rounded_plate(
-        0, 0, z_base,
-        c['plate_width'] - 2, c['plate_length'] - 4,
-        c['top_plate_thick'],
-        c['plate_corner_r'] - 1
-    )
+    fw = c['fuse_width']
+    fl = c['fuse_length']
+    fh = c['fuse_height']
+    wall = c['fuse_wall']
     
-    # Standoff top caps (where bolts sit)
-    half_30 = c['stack_30'] / 2
-    for sx in [-1, 1]:
-        for sy in [-1, 1]:
-            px = sx * half_30
-            py = sy * half_30
-            tris += make_cylinder(
-                px, py, z_base + c['top_plate_thick'],
-                c['standoff_od']/2 - 0.5, 1.5,
-                segments=16
-            )
+    # Outer shell (tapered hexagonal fuselage cross-section)
+    # Front bulkhead position
+    front_x = 80  # behind nose cone
+    rear_x = front_x + fl
     
-    # Antenna mount tube (rear center)
-    tris += make_tube(
-        0, c['plate_length']/2 - 8, z_base + c['top_plate_thick'],
-        4.0, 2.5, 12.0,
-        segments=16
-    )
+    # Cross-section: stealth faceted (hexagonal, wider at bottom)
+    hw = fw / 2
+    hh = fh / 2
     
-    # Buzzer mount ring
-    tris += make_tube(
-        0, -5, z_base + c['top_plate_thick'],
-        6.0, 4.0, 2.0,
-        segments=20
-    )
+    # 6-point fuselage cross-section (stealth angles)
+    def fuse_section(x, scale=1.0):
+        w = hw * scale
+        h = hh * scale
+        return [
+            (x, -w * 0.5, h),           # top-left
+            (x, w * 0.5, h),            # top-right
+            (x, w, 0),                  # right
+            (x, w * 0.7, -h * 0.8),    # bottom-right
+            (x, -w * 0.7, -h * 0.8),   # bottom-left
+            (x, -w, 0),                # left
+        ]
+    
+    n_sections = 8
+    prev_sec = None
+    
+    for i in range(n_sections + 1):
+        t = i / n_sections
+        x = front_x + fl * t
+        
+        # Taper towards front and rear
+        if t < 0.2:
+            scale = 0.6 + 0.4 * (t / 0.2)
+        elif t > 0.8:
+            scale = 0.6 + 0.4 * ((1.0 - t) / 0.2)
+        else:
+            scale = 1.0
+        
+        sec = fuse_section(x, scale)
+        
+        if prev_sec is not None:
+            n = len(sec)
+            for j in range(n):
+                k = (j + 1) % n
+                tris += make_quad(prev_sec[j], sec[j], sec[k], prev_sec[k])
+        
+        prev_sec = sec
+    
+    # Front bulkhead cap
+    sec_front = fuse_section(front_x, 0.6)
+    n = len(sec_front)
+    cx_f = front_x
+    cy_f = sum(p[1] for p in sec_front) / n
+    cz_f = sum(p[2] for p in sec_front) / n
+    for j in range(n):
+        k = (j+1) % n
+        tris.append(((cx_f, cy_f, cz_f), sec_front[k], sec_front[j]))
+    
+    # Rear bulkhead cap
+    sec_rear = fuse_section(rear_x, 0.6)
+    cx_r = rear_x
+    cy_r = sum(p[1] for p in sec_rear) / n
+    cz_r = sum(p[2] for p in sec_rear) / n
+    for j in range(n):
+        k = (j+1) % n
+        tris.append(((cx_r, cy_r, cz_r), sec_rear[j], sec_rear[k]))
+    
+    # Internal mounting rails (2 parallel rails for avionics/battery)
+    for sy in [-1, 1]:
+        rail_y = sy * 25
+        tris += make_box(front_x + fl/2, rail_y, -hh*0.5,
+                         fl - 40, 4, 3)
+    
+    # Carbon fiber spar pass-through slots (reinforced holes in side walls)
+    for sy in [-1, 1]:
+        slot_y = sy * (hw - 5)
+        tris += make_box(front_x + fl * 0.4, slot_y, 0,
+                         15, 8, 12)
+        tris += make_box(front_x + fl * 0.6, slot_y, 0,
+                         15, 8, 12)
     
     return tris
 
 
-def generate_single_arm(arm_index):
+def generate_nose_cone():
     """
-    Single arm with:
-    - Tapered beam profile (wider at body, narrower at motor)
-    - Integrated motor mount cylinder at tip
-    - M3 motor bolt standoffs (16x19mm pattern)
-    - Weight reduction channel
-    
-    arm_index: 0=front-right, 1=front-left, 2=rear-left, 3=rear-right
+    Stealth faceted nose cone:
+    - Sharp pointed tip (low RCS)
+    - Angular faceted surfaces (B-2 Spirit style)
+    - Samsung S21 FE camera window cutout
+    - Interlocks with fuselage bay
     """
-    tris = []
     c = CFG
+    tris = []
     
-    # Calculate arm angle based on True-X layout
-    angles = [45, 135, 225, 315]
-    angle = angles[arm_index]
+    nose_l = c['nose_length']
     
-    # Arm length from center to motor (half wheelbase diagonal)
-    arm_reach = c['wheelbase'] / 2
-    body_clearance = c['plate_width'] / 2 + 2  # start outside body
+    # Nose tip (sharp point at X=0, Y=0, Z=0)
+    tip = (0, 0, 2)  # slightly raised tip
     
-    # Arm start and end points
-    rad = math.radians(angle)
-    start_x = body_clearance * math.cos(rad)
-    start_y = body_clearance * math.sin(rad)
-    end_x = arm_reach * math.cos(rad)
-    end_y = arm_reach * math.sin(rad)
+    # Nose base cross-section (matches fuselage front)
+    base_x = nose_l
+    hw = c['fuse_width'] / 2 * 0.6
+    hh = c['fuse_height'] / 2 * 0.6
     
-    arm_z = c['bottom_plate_thick'] / 2  # center at plate midplane
+    # Stealth faceted nose sections (progressively wider)
+    sections = []
+    n_sec = 8
+    for i in range(n_sec + 1):
+        t = i / n_sec
+        x = nose_l * t
+        
+        # Stealth profile grows from point to fuselage width
+        # Use power curve for aggressive taper
+        s = t ** 0.65  # sharper initial taper
+        w = hw * s
+        h = hh * s
+        
+        if w < 1 or h < 1:
+            sections.append(None)
+            continue
+        
+        # Faceted cross-section (8-sided stealth polygon)
+        sec = [
+            (x, 0, h),                    # top center
+            (x, w * 0.7, h * 0.7),        # top-right
+            (x, w, 0),                    # right
+            (x, w * 0.7, -h * 0.5),       # bottom-right
+            (x, 0, -h * 0.6),             # bottom center
+            (x, -w * 0.7, -h * 0.5),      # bottom-left
+            (x, -w, 0),                   # left
+            (x, -w * 0.7, h * 0.7),       # top-left
+        ]
+        sections.append(sec)
     
-    # Main tapered arm beam
-    tris += make_tapered_arm(
-        start_x, start_y, end_x, end_y,
-        arm_z,
-        c['arm_width'], c['arm_width'] * c['arm_taper'],
-        c['arm_height']
-    )
+    # Connect tip to first valid section
+    first_sec = None
+    for s in sections:
+        if s is not None:
+            first_sec = s
+            break
     
-    # Motor mount cylinder at arm tip
-    motor_z = -c['arm_height']/2 + c['bottom_plate_thick']/2 - 1
-    tris += make_tube(
-        end_x, end_y, motor_z,
-        c['motor_tube_od']/2, c['motor_tube_id']/2,
-        c['motor_tube_h'],
-        segments=c['circle_segments']
-    )
+    if first_sec:
+        for j in range(len(first_sec)):
+            k = (j+1) % len(first_sec)
+            tris.append((tip, first_sec[j], first_sec[k]))
     
-    # Motor mount base plate (solid disc under tube)
-    tris += make_cylinder(
-        end_x, end_y, motor_z - 2,
-        c['motor_tube_od']/2, 2.0,
-        segments=c['circle_segments']
-    )
+    # Loft between sections
+    prev_sec = first_sec
+    for sec in sections[1:]:
+        if sec is None:
+            continue
+        if prev_sec is not None:
+            n = len(sec)
+            for j in range(n):
+                k = (j+1) % n
+                tris += make_quad(prev_sec[j], sec[j], sec[k], prev_sec[k])
+        prev_sec = sec
+    
+    # Rear face (mates with fuselage)
+    if prev_sec:
+        n = len(prev_sec)
+        cx = prev_sec[0][0]
+        cy = sum(p[1] for p in prev_sec) / n
+        cz = sum(p[2] for p in prev_sec) / n
+        for j in range(n):
+            k = (j+1) % n
+            tris.append(((cx, cy, cz), prev_sec[j], prev_sec[k]))
+    
+    # Camera window frame (rectangular cutout frame on bottom-front)
+    cam_x = nose_l * 0.5
+    cam_w = 30  # wide enough for S21 FE camera module
+    cam_h = 15
+    # Frame pillars
+    for sy in [-1, 1]:
+        tris += make_box(cam_x, sy * (cam_w/2 + 3), -hh*0.4,
+                         20, 4, cam_h)
+    # Top bar
+    tris += make_box(cam_x, 0, -hh*0.4 + cam_h/2 + 1, 20, cam_w + 10, 3)
+    # Bottom bar
+    tris += make_box(cam_x, 0, -hh*0.4 - cam_h/2 - 1, 20, cam_w + 10, 3)
+    
+    return tris
+
+
+def generate_motor_mount_bulkhead():
+    """
+    Rear pusher motor mount bulkhead:
+    - 2207 brushless motor M3 bolt pattern (16x19mm)
+    - Hollow motor tube for prop shaft clearance
+    - Mounting flanges to bond into wing trailing edge
+    - Cooling air channels
+    """
+    c = CFG
+    tris = []
+    
+    # Bulkhead plate (vertical, at rear of fuselage)
+    plate_w = 60
+    plate_h = 45
+    plate_t = 4
+    
+    tris += make_box(0, 0, 0, plate_t, plate_w, plate_h)
+    
+    # Motor mounting tube (centered)
+    motor_r = c['motor_mount_dia'] / 2
+    tris += make_tube(0, 0, 0, motor_r, motor_r - 4, plate_t + 6,
+                      segments=CFG['segments'])
     
     # M3 motor bolt standoff posts (16x19mm pattern)
     hw = c['motor_bolt_w'] / 2
     hl = c['motor_bolt_l'] / 2
-    bolt_positions = [(-hw, -hl), (hw, -hl), (hw, hl), (-hw, hl)]
+    for bx, by in [(-hw,-hl),(hw,-hl),(hw,hl),(-hw,hl)]:
+        tris += make_cylinder(plate_t/2 + 2, bx, by, 2.5, 8, segments=10)
     
-    for bx, by in bolt_positions:
-        # Rotate bolt position to match arm angle
-        cos_a, sin_a = math.cos(rad), math.sin(rad)
-        rbx = end_x + bx*cos_a - by*sin_a
-        rby = end_y + bx*sin_a + by*cos_a
-        
-        # Small standoff post
-        tris += make_cylinder(
-            rbx, rby, motor_z - 2,
-            2.0, c['motor_tube_h'] + 2,
-            segments=10
-        )
+    # Wing attachment flanges (extend outward to bond into foam)
+    for sy in [-1, 1]:
+        flange_y = sy * (plate_w/2 + 10)
+        tris += make_box(0, flange_y, 0, plate_t, 18, plate_h * 0.6)
+        # Flange bolt hole reinforcement
+        tris += make_cylinder(0, flange_y, plate_h*0.15, 3.5, plate_t,
+                              segments=10)
     
-    return tris
-
-
-def generate_camera_mount():
-    """
-    FPV camera mount cradle:
-    - 19mm micro camera mount spacing
-    - Adjustable tilt (printed at 25° default)
-    - Side plates with pivot holes
-    - Front protection bumper
-    """
-    tris = []
-    c = CFG
+    # Prop shaft center hole reinforcement ring
+    tris += make_tube(plate_t + 3, 0, 0, 8, 5, 4, segments=16)
     
-    mount_y = -c['plate_length']/2 - 5  # in front of body
-    base_z = c['bottom_plate_thick']
-    
-    # Camera cradle base
-    tris += make_box(0, mount_y, base_z + 6, 24, 8, 2.5)
-    
-    # Side plates (with tilt angle built in)
-    tilt = 25  # degrees
-    plate_h = 22
-    plate_w = 2.5
-    
-    for sx in [-1, 1]:
-        px = sx * (c['cam_mount_w']/2 + plate_w/2)
-        # Side plate
-        tris += make_box(px, mount_y, base_z + 6 + plate_h/2, 
-                         plate_w, 8, plate_h)
-        
-        # Pivot bolt cylinder (where camera tilts)
-        tris += make_cylinder(
-            px, mount_y, base_z + 14,
-            2.5, plate_w + 1,
-            segments=12
-        )
-    
-    # Top protection bar
-    tris += make_box(0, mount_y - 2, base_z + 6 + plate_h, 
-                     c['cam_mount_w'] + 5, 3, 2.5)
-    
-    # Front bumper/skid
-    tris += make_box(0, mount_y - 5, base_z + 3, 
-                     c['cam_mount_w'] + 10, 3, 8)
-    
-    # Mounting tabs to connect to frame body
-    for sx in [-1, 1]:
-        tab_x = sx * 8
-        tris += make_box(tab_x, mount_y + 8, base_z + 1.5, 
-                         6, 12, 3)
+    # Cooling slots (raised guides that direct air)
+    for sy in [-1, 1]:
+        for i in range(3):
+            slot_y = sy * (8 + i * 6)
+            tris += make_box(plate_t + 1, slot_y, -plate_h*0.2,
+                             2, 2, 10)
     
     return tris
 
 
-def generate_battery_pad():
+def generate_wing_rib(side='right'):
     """
-    Anti-slip battery landing pad:
-    - Grid texture pattern for grip
-    - Velcro strap guides
-    - Ventilation slots
+    Structural wing rib (inserts into foam wing at key stations):
+    - Stealth diamond airfoil profile
+    - Carbon fiber spar pass-through holes
+    - Lightening holes for weight reduction
+    - Servo wire channel
+    
+    side: 'right' (Y>0) or 'left' (Y<0)
     """
-    tris = []
     c = CFG
+    tris = []
     
-    z_base = -c['bottom_plate_thick']  # sits under bottom plate
+    # Rib at 40% span station
+    half_span = c['wingspan'] / 2
+    y_station = half_span * 0.4
+    sweep_rad = math.radians(c['sweep_angle'])
     
-    # Main pad plate
-    tris += make_rounded_plate(
-        0, 0, z_base - c['batt_pad_h'],
-        c['batt_pad_w'], c['batt_pad_l'],
-        c['batt_pad_h'],
-        3.0  # corner radius
+    profile = get_stealth_profile(
+        y_station, half_span,
+        c['root_chord'], c['tip_chord'],
+        sweep_rad,
+        c['wing_thickness_root'], c['wing_thickness_tip']
     )
     
-    # Grid texture ridges for grip (horizontal lines)
-    for i in range(-6, 7):
-        gy = i * 5
-        if abs(gy) < c['batt_pad_l']/2 - 5:
-            tris += make_box(0, gy, z_base - c['batt_pad_h'] - 0.5, 
-                             c['batt_pad_w'] - 4, 1.5, 0.8)
+    rib_thickness = 3.0  # mm
     
-    # Grid texture ridges (vertical lines)  
-    for i in range(-3, 4):
-        gx = i * 5
-        if abs(gx) < c['batt_pad_w']/2 - 5:
-            tris += make_box(gx, 0, z_base - c['batt_pad_h'] - 0.5,
-                             1.5, c['batt_pad_l'] - 4, 0.8)
+    # Create rib by extruding profile
+    y_offset = y_station if side == 'right' else -y_station
+    y1 = y_offset - rib_thickness/2
+    y2 = y_offset + rib_thickness/2
     
-    # Strap guide channels (raised edges for battery strap)
-    for sy in [-1, 1]:
-        strap_y = sy * 18
-        tris += make_box(0, strap_y, z_base, 
-                         c['batt_pad_w'] + 4, 4, 2)
+    n = len(profile)
+    
+    # Side faces
+    for i in range(n):
+        j = (i+1) % n
+        v0 = (profile[i][0], y1, profile[i][1])
+        v1 = (profile[j][0], y1, profile[j][1])
+        v2 = (profile[j][0], y2, profile[j][1])
+        v3 = (profile[i][0], y2, profile[i][1])
+        tris += make_quad(v0, v1, v2, v3)
+    
+    # Front face
+    front_verts = [(p[0], y1, p[1]) for p in profile]
+    n_f = len(front_verts)
+    cx_f = sum(v[0] for v in front_verts)/n_f
+    cz_f = sum(v[2] for v in front_verts)/n_f
+    for i in range(n_f):
+        j = (i+1) % n_f
+        tris.append(((cx_f, y1, cz_f), front_verts[j], front_verts[i]))
+    
+    # Back face
+    back_verts = [(p[0], y2, p[1]) for p in profile]
+    for i in range(n_f):
+        j = (i+1) % n_f
+        tris.append(((cx_f, y2, cz_f), back_verts[i], back_verts[j]))
+    
+    # Carbon fiber spar pass-through tube (horizontal hole)
+    spar_x = profile[0][0] + (profile[4][0] - profile[0][0]) * 0.35
+    tris += make_tube(spar_x, y1 - 1, 0, 6, 4, rib_thickness + 2,
+                      segments=12)
+    
+    # Lightening holes (cylinders punched through rib)
+    for lt in [0.25, 0.55]:
+        lh_x = profile[0][0] + (profile[4][0] - profile[0][0]) * lt
+        lh_r = 8
+        tris += make_cylinder(lh_x, y1, 0, lh_r, rib_thickness,
+                              segments=12)
     
     return tris
 
 
-def generate_s21fe_cradle():
+def generate_elevon_servo_mount():
     """
-    Samsung S21 FE Phone Mount Cradle for FPV video:
-    - Secure snap-fit phone holder
-    - Front camera aperture (wide FOV cutout)
-    - Rear ventilation slots
-    - Wing/body attachment flanges
-    - Cable routing channel for USB-C
+    MG90S servo mount for elevon control surface:
+    - Precise servo pocket
+    - Pushrod exit hole
+    - Mounting tabs to glue into wing trailing edge
+    - Control horn alignment guide
     """
-    tris = []
     c = CFG
-    
-    pw, pl, pd = c['phone_w'], c['phone_l'], c['phone_d']
-    wall = c['cradle_wall']
-    lip = c['cradle_lip']
-    
-    # Outer cradle dimensions
-    outer_w = pw + wall * 2
-    outer_l = pl/2 + wall  # half-length cradle (phone slides in)
-    outer_h = pd + wall + lip
-    
-    # Base bed (phone sits on this)
-    tris += make_box(0, 0, 0, outer_w, outer_l, wall)
-    
-    # Left side wall
-    tris += make_box(-(pw/2 + wall/2), 0, outer_h/2, 
-                     wall, outer_l, outer_h)
-    
-    # Right side wall
-    tris += make_box((pw/2 + wall/2), 0, outer_h/2, 
-                     wall, outer_l, outer_h)
-    
-    # Front bumper (nose)
-    tris += make_box(0, -(outer_l/2 + wall/2), outer_h/2,
-                     outer_w, wall, outer_h)
-    
-    # Front camera aperture - cutout frame (U-shaped around camera)
-    cam_cut_w = 30  # wide enough for ultra-wide lens
-    cam_cut_h = pd + 2
-    # Left pillar of camera frame
-    tris += make_box(-(cam_cut_w/2 + 5), -(outer_l/2),
-                     wall + cam_cut_h/2,
-                     8, wall + 2, cam_cut_h)
-    # Right pillar
-    tris += make_box((cam_cut_w/2 + 5), -(outer_l/2),
-                     wall + cam_cut_h/2,
-                     8, wall + 2, cam_cut_h)
-    # Top bar over camera
-    tris += make_box(0, -(outer_l/2), wall + cam_cut_h + 1.5,
-                     outer_w - 4, wall + 2, 3)
-    
-    # Retaining lips (top edges to hold phone in)
-    for sx in [-1, 1]:
-        tris += make_box(sx * (pw/2 - 3), 0, outer_h + lip/2,
-                         8, outer_l - 10, lip)
-    
-    # Rear open end guide rails
-    for sx in [-1, 1]:
-        tris += make_box(sx * (pw/2 + wall/2), outer_l/2 + 3, outer_h/2,
-                         wall, 8, outer_h)
-    
-    # USB-C cable routing channel (bottom center rear)
-    tris += make_box(0, outer_l/2 + 2, wall/2 + 0.5,
-                     14, 6, wall + 1)
-    
-    # Wing/body attachment flanges with bolt holes
-    for sx in [-1, 1]:
-        flange_x = sx * (outer_w/2 + 8)
-        tris += make_box(flange_x, -10, wall/2,
-                         12, 25, wall)
-        # Bolt hole reinforcement cylinders
-        tris += make_cylinder(flange_x, -18, wall, 3.5, 2, segments=12)
-        tris += make_cylinder(flange_x, -2, wall, 3.5, 2, segments=12)
-    
-    return tris
-
-
-def generate_full_frame():
-    """
-    Assembles all parts into one STL for visualization:
-    Bottom plate + Top plate + 4 Arms + Camera mount + Battery pad
-    """
     tris = []
+    
+    sw = c['servo_w']
+    sl = c['servo_l']
+    sh = c['servo_h']
+    tab_w = c['servo_tab_w']
+    
+    # Servo pocket (box with open top)
+    pocket_wall = 2.0
     
     # Bottom plate
-    tris += generate_bottom_plate()
+    tris += make_box(0, 0, 0, 
+                     sw + pocket_wall*2, sl + pocket_wall*2, pocket_wall)
     
-    # Top plate
-    tris += generate_top_plate()
+    # Side walls
+    for sx in [-1, 1]:
+        wall_x = sx * (sw/2 + pocket_wall/2)
+        tris += make_box(wall_x, 0, sh/2, 
+                         pocket_wall, sl + pocket_wall*2, sh)
     
-    # 4 Arms with motor mounts
-    for i in range(4):
-        tris += generate_single_arm(i)
+    # Front and rear walls
+    for sy in [-1, 1]:
+        wall_y = sy * (sl/2 + pocket_wall/2)
+        tris += make_box(0, wall_y, sh/2, 
+                         sw + pocket_wall*2, pocket_wall, sh)
     
-    # Camera mount
-    tris += generate_camera_mount()
+    # Servo tab mounting shelf (the ears that the servo tabs rest on)
+    tab_z = sh * 0.6
+    tris += make_box(0, 0, tab_z, tab_w + 4, sl * 0.4, 2)
     
-    # Battery pad
-    tris += generate_battery_pad()
+    # Wing mounting flanges (extend to sides for bonding into foam)
+    for sx in [-1, 1]:
+        flange_x = sx * (tab_w/2 + 12)
+        tris += make_box(flange_x, 0, pocket_wall/2, 
+                         20, sl + 10, pocket_wall)
+    
+    # Pushrod exit guide (small tube at rear)
+    tris += make_tube(0, sl/2 + pocket_wall + 3, sh * 0.4,
+                      3.5, 1.5, 6, segments=10)
+    
+    # Control horn alignment post
+    tris += make_cylinder(0, -sl/2 - 5, 0, 2.0, sh + 5, segments=10)
+    
+    return tris
+
+
+def generate_battery_sled():
+    """
+    4S 18650 Li-Ion battery tray:
+    - 4 cell cradles in series configuration
+    - Velcro strap guides
+    - XT60 connector pocket
+    - CG adjustment slots (slide fore/aft)
+    """
+    c = CFG
+    tris = []
+    
+    cell_r = c['cell_dia'] / 2
+    cell_l = c['cell_len']
+    n_cells = c['batt_cells']
+    
+    # Tray base plate
+    tray_w = cell_r * 2 * n_cells + 8
+    tray_l = cell_l + 15
+    tray_t = 2.0
+    
+    tris += make_box(0, 0, 0, tray_w, tray_l, tray_t)
+    
+    # Cell cradle dividers (walls between cells)
+    for i in range(n_cells + 1):
+        div_y = -tray_w/2 + cell_r*2*i + 4
+        tris += make_box(0, div_y, tray_t + cell_r*0.4,
+                         cell_l, 1.5, cell_r * 0.8)
+    
+    # Cell retention lips (top edges to prevent cells rolling out)
+    for i in range(n_cells):
+        cell_cy = -tray_w/2 + cell_r*(2*i+1) + 4
+        for sx in [-1, 1]:
+            lip_x = sx * (cell_l/2 - 3)
+            tris += make_box(lip_x, cell_cy, tray_t + cell_r * 0.7,
+                             8, cell_r * 1.4, 2)
+    
+    # Strap guides (raised channels for velcro)
+    for sx in [-1, 1]:
+        strap_x = sx * (cell_l/2 + 3)
+        tris += make_box(strap_x, 0, tray_t + 1, 4, tray_w + 4, 3)
+    
+    # CG adjustment rail slots
+    rail_spacing = 30
+    for sx in [-1, 1]:
+        rail_y = sx * (tray_w/2 + 3)
+        tris += make_box(0, rail_y, tray_t/2, cell_l - 10, 3, tray_t)
+        # Slot marks
+        for i in range(-2, 3):
+            mark_x = i * 10
+            tris += make_box(mark_x, rail_y, tray_t, 2, 5, 1)
+    
+    # XT60 connector pocket (rear)
+    tris += make_box(cell_l/2 + 2, 0, tray_t + 4, 14, 20, 8)
+    
+    return tris
+
+
+def generate_avionics_tray():
+    """
+    ESP32 Super Mini + MPU-6050 mounting tray:
+    - ESP32 mounting posts
+    - MPU-6050 vibration-damped mount
+    - Antenna clearance window
+    - Wire routing channels
+    """
+    c = CFG
+    tris = []
+    
+    # Base plate
+    tray_w = 45
+    tray_l = 55
+    tray_t = 2.0
+    
+    tris += make_box(0, 0, 0, tray_w, tray_l, tray_t)
+    
+    # ESP32 mounting posts (4 corner posts)
+    esp_hw = c['esp32_w'] / 2
+    esp_hl = c['esp32_l'] / 2
+    esp_offset_y = -8  # offset towards front
+    
+    for sx in [-1, 1]:
+        for sy in [-1, 1]:
+            px = sx * (esp_hw + 1)
+            py = esp_offset_y + sy * (esp_hl + 1)
+            tris += make_cylinder(px, py, tray_t, 2.0, 4.0, segments=8)
+    
+    # ESP32 platform shelf
+    tris += make_box(0, esp_offset_y, tray_t + 3.5,
+                     c['esp32_w'] + 4, c['esp32_l'] + 4, 1.0)
+    
+    # MPU-6050 mounting (slightly raised, centered for CG)
+    mpu_offset_y = 12
+    
+    # Vibration damping posts (taller, thinner)
+    for sx in [-1, 1]:
+        for sy in [-1, 1]:
+            px = sx * (c['mpu_w']/2 + 1)
+            py = mpu_offset_y + sy * (c['mpu_l']/2 + 1)
+            tris += make_cylinder(px, py, tray_t, 1.8, 6.0, segments=8)
+    
+    # MPU platform
+    tris += make_box(0, mpu_offset_y, tray_t + 5.5,
+                     c['mpu_w'] + 2, c['mpu_l'] + 2, 1.0)
+    
+    # Wire routing channels (recessed grooves)
+    for sx in [-1, 1]:
+        channel_x = sx * (tray_w/2 - 5)
+        tris += make_box(channel_x, 0, tray_t + 0.5, 3, tray_l - 8, 1.5)
+    
+    # Fuselage mounting tabs
+    for sy in [-1, 1]:
+        tab_y = sy * (tray_l/2 + 5)
+        tris += make_box(0, tab_y, tray_t/2, tray_w * 0.6, 8, tray_t)
+        # Bolt hole
+        tris += make_cylinder(0, tab_y, tray_t, 1.8, 2, segments=8)
+    
+    # Antenna keep-out zone marker (raised ring)
+    tris += make_tube(tray_w/2 - 3, esp_offset_y, tray_t + 4,
+                      5, 3, 2, segments=12)
+    
+    return tris
+
+
+def generate_s21fe_nose_cradle():
+    """
+    Samsung S21 FE phone mount cradle for nose section:
+    - Secure phone holder aligned with flight direction
+    - Camera lens window (forward-facing, 120deg FOV)
+    - USB-C port access for charging/OTG
+    - Snap-fit retention with ejection slot
+    """
+    c = CFG
+    tris = []
+    
+    pw, pd = c['phone_w'], c['phone_d']
+    wall = 2.5
+    lip = 2.5
+    cradle_l = 85  # holds front portion of phone
+    
+    # Base bed
+    tris += make_box(0, 0, 0, pw + wall*2, cradle_l, wall)
+    
+    # Side walls
+    for sx in [-1, 1]:
+        tris += make_box(sx * (pw/2 + wall/2), 0, (pd+lip)/2,
+                         wall, cradle_l, pd + lip)
+    
+    # Front nose bumper (angled stealth profile)
+    front_y = -(cradle_l/2 + wall)
+    tris += make_box(0, front_y, (pd+lip)/2, pw + wall*2, wall*2, pd + lip)
+    
+    # Camera window opening frame
+    cam_w = 32  # ultra-wide lens clearance
+    cam_h = pd + 3
+    for sx in [-1, 1]:
+        tris += make_box(sx*(cam_w/2 + 5), front_y, cam_h/2 + 2,
+                         8, wall*2 + 2, cam_h)
+    tris += make_box(0, front_y, cam_h + 3, cam_w + 14, wall*2 + 2, 3)
+    
+    # Phone retention lips
+    for sx in [-1, 1]:
+        tris += make_box(sx * (pw/2 - 5), 0, pd + lip + wall/2,
+                         12, cradle_l * 0.5, lip)
+    
+    # Stealth nose fairing (triangular front extension)
+    fairing_l = 40
+    nose_tip = (0, front_y - fairing_l, pd/2 + wall)
+    # Left top edge
+    lt = (-(pw/2 + wall), front_y, pd + lip)
+    # Right top edge
+    rt = ((pw/2 + wall), front_y, pd + lip)
+    # Left bottom edge
+    lb = (-(pw/2 + wall), front_y, 0)
+    # Right bottom edge
+    rb = ((pw/2 + wall), front_y, 0)
+    
+    # Top facet
+    tris.append((nose_tip, lt, rt))
+    # Bottom facet
+    tris.append((nose_tip, rb, lb))
+    # Left facet
+    tris.append((nose_tip, lb, lt))
+    # Right facet
+    tris.append((nose_tip, rt, rb))
+    
+    # USB-C access slot (rear)
+    rear_y = cradle_l/2 + 2
+    tris += make_box(0, rear_y, wall + pd/2, 14, 4, pd)
+    
+    # Wing body mounting flanges
+    for sx in [-1, 1]:
+        fx = sx * (pw/2 + wall + 10)
+        tris += make_box(fx, -10, wall/2, 15, 30, wall)
+        tris += make_cylinder(fx, -20, wall, 3, 2, segments=10)
+        tris += make_cylinder(fx, 0, wall, 3, 2, segments=10)
+    
+    return tris
+
+
+def generate_full_assembly():
+    """
+    All parts assembled for preview visualization.
+    """
+    tris = []
+    
+    # Main wing body
+    tris += generate_stealth_wing_body()
+    
+    # Nose cone (at front)
+    tris += generate_nose_cone()
+    
+    # Fuselage bay (center)
+    tris += generate_fuselage_bay()
     
     return tris
 
 
 # ============================================================================
-#  MAIN - Generate All STL Files
+#  MAIN
 # ============================================================================
 if __name__ == '__main__':
     out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models')
     
     parts = [
-        ('bottom_plate.stl', generate_bottom_plate, 
-         'Bottom Chassis Plate (30.5mm + 20mm stack mounts)'),
-        ('top_plate.stl', generate_top_plate,
-         'Top Protection Plate (with antenna & buzzer mounts)'),
-        ('arm_front_right.stl', lambda: generate_single_arm(0),
-         'Arm #1 Front-Right (45°) with 2207 motor mount'),
-        ('arm_front_left.stl', lambda: generate_single_arm(1),
-         'Arm #2 Front-Left (135°) with 2207 motor mount'),
-        ('arm_rear_left.stl', lambda: generate_single_arm(2),
-         'Arm #3 Rear-Left (225°) with 2207 motor mount'),
-        ('arm_rear_right.stl', lambda: generate_single_arm(3),
-         'Arm #4 Rear-Right (315°) with 2207 motor mount'),
-        ('camera_mount_micro.stl', generate_camera_mount,
-         'FPV Camera Mount (19mm micro, 25° tilt)'),
-        ('battery_pad.stl', generate_battery_pad,
-         'Battery Landing Pad (anti-slip grid)'),
-        ('s21fe_fpv_cradle.stl', generate_s21fe_cradle,
-         'Samsung S21 FE Phone Cradle (FPV camera mount)'),
-        ('full_frame_assembled.stl', generate_full_frame,
-         '★ Full Assembled Frame (all parts combined for preview)'),
+        ('stealth_wing_body.stl', generate_stealth_wing_body,
+         'Stealth Delta Wing Outer Shell (900mm span, faceted airfoil)'),
+        ('fuselage_bay.stl', generate_fuselage_bay,
+         'Internal Electronics Bay (hexagonal stealth fuselage)'),
+        ('nose_cone_stealth.stl', generate_nose_cone,
+         'Stealth Faceted Nose Cone (with camera window)'),
+        ('motor_mount_pusher.stl', generate_motor_mount_bulkhead,
+         'Rear Pusher Motor Bulkhead (2207 M3 bolt pattern)'),
+        ('wing_rib_right.stl', lambda: generate_wing_rib('right'),
+         'Structural Wing Rib - Right (40% span, spar holes)'),
+        ('wing_rib_left.stl', lambda: generate_wing_rib('left'),
+         'Structural Wing Rib - Left (40% span, spar holes)'),
+        ('elevon_servo_mount.stl', generate_elevon_servo_mount,
+         'MG90S Elevon Servo Mount (pushrod guide)'),
+        ('battery_sled_4s.stl', generate_battery_sled,
+         '4S 18650 Li-Ion Battery Tray (CG adjustable)'),
+        ('avionics_tray.stl', generate_avionics_tray,
+         'ESP32 + MPU-6050 Avionics Tray (vibration damped)'),
+        ('s21fe_nose_cradle.stl', generate_s21fe_nose_cradle,
+         'Samsung S21 FE Nose Cradle (FPV camera + stealth fairing)'),
+        ('full_assembly.stl', generate_full_assembly,
+         '* Full Stealth Wing Assembly (wing + nose + fuselage)'),
     ]
     
-    print("=" * 65)
-    print("  🛸 SUPER-DRONE | FPV Quadcopter Frame STL Generator")
-    print(f"  Wheelbase: {CFG['wheelbase']}mm | Arms: {CFG['arm_height']}mm thick")
-    print(f"  Stack: {CFG['stack_30']}mm + {CFG['stack_20']}mm | Motor: 16x19mm M3")
-    print("=" * 65)
+    print("=" * 70)
+    print("  SUPER-WING 5G | Stealth Delta Flying Wing STL Generator")
+    print(f"  Wingspan: {CFG['wingspan']}mm | Sweep: {CFG['sweep_angle']}deg")
+    print(f"  Root Chord: {CFG['root_chord']}mm | Tip Chord: {CFG['tip_chord']}mm")
+    print(f"  Motor: 2207 (16x19mm M3) | Servos: 2x MG90S Elevons")
+    print("=" * 70)
     
     for filename, generator, description in parts:
         filepath = os.path.join(out_dir, filename)
         triangles = generator()
-        write_binary_stl(filepath, triangles, f"SuperDrone {filename}")
+        write_binary_stl(filepath, triangles, f"SuperWing {filename}")
         size_kb = os.path.getsize(filepath) / 1024
-        print(f"  ✅ {filename:<30s} | {len(triangles):>5d} tris | {size_kb:>6.1f} KB")
-        print(f"     └─ {description}")
+        print(f"  OK {filename:<30s} | {len(triangles):>5d} tris | {size_kb:>6.1f} KB")
+        print(f"      > {description}")
     
-    print("=" * 65)
-    print(f"  📂 Output: {out_dir}")
-    print("  🖨️  Print: PETG/CF-PETG | 0.2mm layer | 60%+ Gyroid infill")
-    print("=" * 65)
+    print("=" * 70)
+    print(f"  Output: {out_dir}")
+    print("  Print: LW-PLA or PETG | 0.2mm layer | 20-40% infill")
+    print("=" * 70)

@@ -1,35 +1,37 @@
 /* =====================================================================
- *  🛸 SUPERDRONE 5G | 2026 NEXT-GEN ENTERPRISE GCS STYLESHEET
- *  Minimalist, Ultra-Clean Apple VisionOS & Tesla Aerospace Aesthetics
+ *  🛸 SUPERDRONE 5G BVLOS | 2026 NEXT-GEN ENTERPRISE GCS STYLESHEET
+ *  VisionOS + Tesla Cybertruck + Handheld Mobile Flight Controller
  * ===================================================================== */
 
 :root {
-  --bg-app: #080c14;
-  --bg-surface: rgba(15, 23, 42, 0.75);
-  --bg-surface-elevated: rgba(30, 41, 59, 0.7);
-  --bg-glass: rgba(15, 23, 42, 0.55);
-  --border-subtle: rgba(255, 255, 255, 0.09);
-  --border-highlight: rgba(59, 130, 246, 0.35);
+  --bg-app: #060810;
+  --bg-gradient: radial-gradient(circle at 50% 15%, #0d1527 0%, #060810 85%);
+  --bg-surface: rgba(13, 20, 36, 0.82);
+  --bg-surface-elevated: rgba(22, 33, 58, 0.9);
+  --bg-glass-input: rgba(6, 10, 20, 0.7);
+  
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --border-active: rgba(0, 240, 255, 0.45);
 
+  --accent-cyan: #00f0ff;
+  --accent-cyan-glow: rgba(0, 240, 255, 0.35);
   --accent-blue: #3b82f6;
-  --accent-blue-hover: #2563eb;
-  --accent-blue-glow: rgba(59, 130, 246, 0.25);
-
-  --accent-emerald: #10b981;
-  --accent-emerald-glow: rgba(16, 185, 129, 0.25);
-
-  --accent-rose: #ef4444;
-  --accent-rose-glow: rgba(239, 68, 68, 0.25);
-
-  --accent-amber: #f59e0b;
+  --accent-emerald: #00ff88;
+  --accent-emerald-glow: rgba(0, 255, 136, 0.35);
+  --accent-rose: #ff3366;
+  --accent-rose-glow: rgba(255, 51, 102, 0.35);
+  --accent-amber: #ffaa00;
 
   --text-main: #f8fafc;
   --text-secondary: #94a3b8;
   --text-tertiary: #64748b;
 
+  --font-display: 'Outfit', sans-serif;
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
+  --header-height: 56px;
   --dock-height: 220px;
 }
 
@@ -47,6 +49,7 @@ html, body {
   height: 100%;
   overflow: hidden;
   background-color: var(--bg-app);
+  background-image: var(--bg-gradient);
   color: var(--text-main);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -56,6 +59,7 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
+  touch-action: none;
 }
 
 .mono {
@@ -63,218 +67,422 @@ body {
   font-feature-settings: 'tnum' on, 'zero' on;
 }
 
-/* ==================== 1. FLOATING MODERN HEADER ==================== */
-.app-header {
-  position: absolute;
-  top: 14px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  z-index: 100;
-  pointer-events: none;
-  padding: 0 16px;
+.bold {
+  font-weight: 700;
 }
 
-.header-glass-pill {
-  pointer-events: auto;
+.text-cyan {
+  color: var(--accent-cyan) !important;
+}
+
+.text-rose {
+  color: var(--accent-rose) !important;
+}
+
+.text-muted {
+  color: var(--text-secondary);
+}
+
+.text-small {
+  font-size: 0.72rem !important;
+}
+
+/* ==================== 1. ENTERPRISE NAVIGATION HEADER ==================== */
+.app-header {
+  height: var(--header-height);
+  width: 100%;
+  padding: 6px 16px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-glass);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  z-index: 100;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 1280px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 18px;
-  padding: 8px 16px;
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  gap: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
 }
 
-.header-brand {
+.header-inner {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Header Left: Brand & Vehicle */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.brand-group {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.brand-mark {
+.brand-mark-hex {
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, #1e293b 0%, #0b1329 100%);
+  border: 1px solid rgba(0, 240, 255, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent-blue);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  color: var(--accent-cyan);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
-.brand-info {
+.brand-titles {
   display: flex;
   flex-direction: column;
 }
 
-.brand-name {
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: -0.3px;
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.2px;
   color: #fff;
-}
-
-.brand-tag {
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.6px;
-  color: var(--accent-blue);
-  text-transform: uppercase;
-}
-
-/* Center Telemetry Bar */
-.telemetry-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.telemetry-item {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  padding: 6px 12px;
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.2s ease;
+  line-height: 1.1;
 }
 
-.telemetry-item:hover {
-  background: rgba(255, 255, 255, 0.06);
+.badge-5g {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  color: var(--accent-cyan);
 }
 
-.status-dot {
+.brand-subtitle {
+  font-size: 0.64rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Vehicle Switcher */
+.vehicle-switcher {
+  display: flex;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.vehicle-tab {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.vehicle-tab:hover {
+  color: #fff;
+}
+
+.vehicle-tab.active {
+  background: rgba(0, 240, 255, 0.18);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  color: #fff;
+}
+
+/* Header Center: Telemetry Badges */
+.header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.telem-badge {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 4px 9px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.telem-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.telem-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+}
+
+.telem-val {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.glowing-time {
+  color: var(--accent-cyan);
+}
+
+/* Signal Meter */
+.signal-meter {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.sig-bar {
+  width: 2.5px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 1px;
+}
+.sig-bar.bar-1 { height: 3px; }
+.sig-bar.bar-2 { height: 6px; }
+.sig-bar.bar-3 { height: 9px; }
+.sig-bar.bar-4 { height: 12px; }
+
+.sig-bar.active {
+  background: var(--accent-emerald);
+  box-shadow: 0 0 5px var(--accent-emerald-glow);
+}
+
+/* Phone Hardware Status Chip */
+.phone-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+}
+
+.phone-chip.disconnected {
+  background: rgba(255, 51, 102, 0.12);
+  border: 1px solid rgba(255, 51, 102, 0.35);
+  color: #ff8099;
+}
+
+.phone-chip.disconnected .phone-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-rose);
+}
+
+.phone-chip.connected {
+  background: rgba(0, 255, 136, 0.15);
+  border: 1px solid rgba(0, 255, 136, 0.4);
+  color: #a7f3d0;
+}
+
+.phone-chip.connected .phone-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-emerald);
+  box-shadow: 0 0 8px var(--accent-emerald);
+  animation: pingPulse 1.2s infinite;
+}
+
+/* Ping Pulse Dot */
+.ping-pulse-dot {
   width: 7px;
   height: 7px;
+  border-radius: 50%;
+  background: var(--accent-emerald);
+}
+
+.ping-pulse-dot.ping-idle {
+  background: var(--text-tertiary);
+}
+
+@keyframes pingPulse {
+  0%, 100% { opacity: 0.8; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.fix-tag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(0, 255, 136, 0.15);
+  color: var(--accent-emerald);
+}
+
+.fix-tag.no-fix {
+  background: rgba(255, 51, 102, 0.15);
+  color: #ff8099;
+}
+
+/* Battery Gauge */
+.battery-gauge-modern {
+  display: flex;
+  align-items: center;
+}
+
+.batt-cell {
+  width: 22px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 1px;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.batt-cap {
+  width: 2px;
+  height: 5px;
+  border-radius: 0 1px 1px 0;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.batt-fill {
+  height: 100%;
+  border-radius: 1px;
+  background: var(--accent-emerald);
+  box-shadow: 0 0 5px var(--accent-emerald);
+  transition: width 0.3s;
+}
+
+/* Sim Toggle Pill */
+.sim-toggle-pill {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 5px 9px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+
+.sim-toggle-pill.active {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: rgba(0, 240, 255, 0.35);
+  color: var(--accent-cyan);
+}
+
+.sim-toggle-pill .sim-dot {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--text-tertiary);
 }
 
-.status-dot.online {
-  background: var(--accent-emerald);
-  box-shadow: 0 0 8px var(--accent-emerald-glow);
+.sim-toggle-pill.active .sim-dot {
+  background: var(--accent-cyan);
+  box-shadow: 0 0 6px var(--accent-cyan);
 }
 
-.telemetry-label {
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.telemetry-val {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #fff;
-}
-
-.battery-chip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.battery-gauge {
-  width: 24px;
-  height: 8px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.12);
-  padding: 1px;
-}
-
-.battery-fill {
-  height: 100%;
-  border-radius: 2px;
-  background: var(--accent-emerald);
-  transition: width 0.3s ease;
-}
-
-/* Header Actions */
-.header-actions {
+/* Header Right: Actions */
+.header-right {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .arm-btn {
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
   padding: 7px 16px;
   border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s;
 }
 
 .arm-btn.disarmed {
-  background: rgba(239, 68, 68, 0.12);
-  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
   color: #fca5a5;
 }
-.arm-btn.disarmed:hover {
-  background: rgba(239, 68, 68, 0.2);
-}
 
-.arm-btn.disarmed .arm-indicator {
+.arm-btn.disarmed .arm-led {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: var(--accent-rose);
+  box-shadow: 0 0 6px var(--accent-rose);
 }
 
 .arm-btn.armed {
-  background: rgba(16, 185, 129, 0.16);
-  border-color: rgba(16, 185, 129, 0.3);
-  color: #6ee7b7;
-}
-.arm-btn.armed:hover {
-  background: rgba(16, 185, 129, 0.25);
+  background: rgba(0, 255, 136, 0.2);
+  border-color: rgba(0, 255, 136, 0.5);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(0, 255, 136, 0.35);
 }
 
-.arm-btn.armed .arm-indicator {
+.arm-btn.armed .arm-led {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--accent-emerald);
-  box-shadow: 0 0 10px var(--accent-emerald);
+  background: #fff;
+  box-shadow: 0 0 8px #fff;
 }
 
 .emergency-btn {
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 7px 14px;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 7px 13px;
   border-radius: 10px;
-  background: rgba(239, 68, 68, 0.18);
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(255, 51, 102, 0.18);
+  border: 1px solid rgba(255, 51, 102, 0.4);
   color: #fff;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
 .emergency-btn:hover {
   background: var(--accent-rose);
-  box-shadow: 0 4px 16px var(--accent-rose-glow);
+  box-shadow: 0 0 16px var(--accent-rose-glow);
 }
 
-.utility-group {
+.utility-tools {
   display: flex;
   gap: 4px;
 }
@@ -283,14 +491,14 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
 .icon-btn:hover {
@@ -299,16 +507,16 @@ body {
 }
 
 .icon-btn.active {
-  color: var(--accent-blue);
-  background: rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.3);
+  color: var(--accent-cyan);
+  background: rgba(0, 240, 255, 0.15);
+  border-color: rgba(0, 240, 255, 0.35);
 }
 
-/* ==================== 2. MAIN VIEWPORT STAGE ==================== */
+/* ==================== 2. PRIMARY VIEWPORT & HUD STAGE ==================== */
 .viewport-stage {
   flex: 1;
   position: relative;
-  background: radial-gradient(circle at center, #111827 0%, #060911 100%);
+  background: #000;
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -320,113 +528,83 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  background: #000;
+  background: #04060d;
 }
 
 #drone-video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  z-index: 1;
 }
 
-/* Minimal Standby Screen */
-.standby-screen {
+.svs-canvas {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at center, #0f172a 0%, #060911 80%);
+  width: 100%;
+  height: 100%;
   z-index: 2;
+  pointer-events: none;
 }
 
-.pulse-beacon-ring {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 24px;
-}
-
-.pulse-wave {
+/* Prominent Phone Connection Banner */
+.standby-overlay-bar {
   position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  animation: pulseScale 3s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  pointer-events: none;
+  width: 90%;
+  max-width: 580px;
 }
 
-.wave-2 {
-  animation-delay: 1.5s;
-}
-
-@keyframes pulseScale {
-  0% { transform: scale(0.6); opacity: 0.8; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-
-.beacon-core {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: rgba(30, 41, 59, 0.9);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+.standby-pill {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-}
-
-.standby-content {
-  text-align: center;
-}
-
-.standby-content h3 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: -0.3px;
-  color: #fff;
-  margin-bottom: 6px;
-}
-
-.standby-content p {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  max-width: 440px;
-  margin-bottom: 18px;
-  line-height: 1.5;
-}
-
-.gateway-chip {
-  display: inline-flex;
-  align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 20px;
-  padding: 6px 16px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--text-secondary);
+  border-radius: 16px;
+  padding: 8px 16px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  backdrop-filter: blur(16px);
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  flex-wrap: wrap;
 }
 
-.dot-blink {
+.standby-pill.disconnected {
+  background: rgba(24, 10, 18, 0.88);
+  border: 1px solid rgba(255, 51, 102, 0.45);
+  color: #ff99aa;
+}
+
+.standby-pill.disconnected .subtext b {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.standby-pill.connected {
+  background: rgba(6, 22, 16, 0.88);
+  border: 1px solid rgba(0, 255, 136, 0.45);
+  color: #a7f3d0;
+}
+
+.live-dot-beacon {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--accent-emerald);
-  animation: blink 1.2s infinite;
+  box-shadow: 0 0 6px var(--accent-emerald);
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-/* Canvas HUD */
+/* Aviation HUD Canvas */
 .hud-canvas {
   position: absolute;
   inset: 0;
@@ -436,146 +614,257 @@ body {
   z-index: 5;
 }
 
-/* Floating Compass Tape */
-.floating-heading {
+/* Compass Ribbon (Never overlaps header!) */
+.compass-ribbon-container {
   position: absolute;
-  top: 76px;
+  top: 14px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 20px;
-  padding: 4px 14px;
-  backdrop-filter: blur(16px);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  z-index: 6;
-  pointer-events: none;
-}
-
-.heading-pip {
-  font-size: 0.65rem;
-  color: var(--accent-blue);
-}
-
-.heading-readout {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #fff;
-}
-
-/* Speed & Altitude Modern Floating Pills */
-.flight-hud-pill {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  padding: 12px 14px;
-  backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 82px;
-  z-index: 6;
+  z-index: 10;
   pointer-events: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-.hud-left { left: 24px; }
-.hud-right { right: 24px; }
-
-.gauge-title {
+.compass-marker-needle {
   font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: var(--text-tertiary);
-  margin-bottom: 2px;
+  color: var(--accent-cyan);
+  margin-bottom: -3px;
 }
 
-.gauge-number {
-  font-size: 1.35rem;
+.compass-ribbon-track {
+  width: 340px;
+  height: 28px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#compass-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.compass-degrees-pill {
+  margin-top: 4px;
+  font-size: 0.74rem;
   font-weight: 700;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 1px 8px;
   color: #fff;
 }
 
-.gauge-unit {
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: var(--accent-blue);
-  margin-top: 2px;
-}
-
-/* Floating Glass Cards */
-.glass-card {
+/* Aviation Rolling Tapes (Cleanly floating on sides) */
+.aviation-tape {
   position: absolute;
+  top: 55%;
+  transform: translateY(-50%);
   background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-glass);
   border-radius: 14px;
-  padding: 12px 16px;
-  backdrop-filter: blur(20px);
-  z-index: 6;
+  padding: 8px 10px;
+  backdrop-filter: blur(24px) saturate(180%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+  z-index: 10;
   pointer-events: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
-.attitude-card {
-  top: 80px;
-  left: 24px;
-  min-width: 180px;
-}
+.tape-left { left: 18px; }
+.tape-right { right: 18px; }
 
-.motor-card {
-  top: 80px;
-  right: 24px;
-  min-width: 200px;
-}
-
-.card-caption {
-  font-size: 0.65rem;
+.tape-header {
+  font-family: var(--font-display);
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.8px;
   color: var(--text-tertiary);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.tape-window {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--border-active);
+  border-radius: 6px;
+  padding: 3px 8px;
+  box-shadow: 0 0 10px var(--accent-cyan-glow);
+}
+
+.tape-current-val {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.tape-footer {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin-top: 4px;
+}
+
+.vsi-meter {
+  margin-top: 6px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.vsi-track {
+  width: 50px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vsi-needle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 4px;
+  height: 100%;
+  background: var(--accent-cyan);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+
+.vsi-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Glass Telemetry Side Cards (Positioned in viewport stage - NO overlap!) */
+.glass-card {
+  position: absolute;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: 14px;
+  padding: 10px 14px;
+  backdrop-filter: blur(24px) saturate(180%);
+  z-index: 10;
+  pointer-events: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.attitude-card {
+  top: 14px;
+  left: 18px;
+  min-width: 185px;
+  max-width: 210px;
+}
+
+.motor-card {
+  top: 14px;
+  right: 18px;
+  min-width: 200px;
+  max-width: 230px;
+}
+
+.card-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--text-tertiary);
+}
+
+.pulse-chip-live {
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  color: var(--accent-cyan);
+}
+
+.card-stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .data-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
+  align-items: center;
+  font-size: 0.74rem;
   color: var(--text-secondary);
-  margin-bottom: 4px;
 }
 
-.data-row .bold {
-  color: #fff;
+.data-row.divider-top {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 4px;
+  margin-top: 2px;
+}
+
+.row-label {
+  font-size: 0.66rem;
 }
 
 /* 4-Motor Grid */
 .motors-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
 }
 
 .motor-unit {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 4px 6px;
+}
+
+.motor-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .motor-label {
-  font-size: 0.65rem;
-  font-weight: 600;
+  font-size: 0.6rem;
+  font-weight: 700;
   color: var(--text-secondary);
+}
+
+.motor-rpm {
+  font-size: 0.58rem;
+  color: var(--accent-cyan);
 }
 
 .motor-bar-bg {
   width: 100%;
-  height: 5px;
-  border-radius: 3px;
+  height: 4px;
+  border-radius: 2px;
   background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
@@ -583,32 +872,162 @@ body {
 .motor-bar-val {
   height: 100%;
   width: 0%;
-  border-radius: 3px;
-  background: var(--accent-blue);
+  border-radius: 2px;
+  background: linear-gradient(90deg, #3b82f6 0%, #00f0ff 100%);
   transition: width 0.05s ease-out;
 }
 
+.motor-pwm-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.62rem;
+}
+
 .motor-pwm {
-  font-size: 0.7rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.motor-pct {
+  color: var(--text-tertiary);
+}
+
+/* Stealth Wing Actuators */
+.wing-actuators-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.elevon-servos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.servo-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 6px 4px;
+}
+
+.servo-title {
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+}
+
+.servo-gauge {
+  width: 44px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  position: relative;
+}
+
+.servo-needle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3px;
+  height: 100%;
+  background: var(--accent-emerald);
+  transform: translateX(-50%);
+}
+
+.servo-angle {
+  font-size: 0.66rem;
+  font-weight: 700;
   color: #fff;
 }
 
-/* Floating Snapshot Tool */
-.floating-camera-tools {
+/* Tactical Radar (Bottom Right Viewport) */
+.tactical-radar-card {
   position: absolute;
   bottom: 16px;
+  right: 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: 14px;
+  padding: 8px 12px;
+  backdrop-filter: blur(24px) saturate(180%);
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.radar-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+}
+
+.radar-range { color: var(--accent-cyan); }
+
+.radar-display {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.05) 0%, rgba(4, 10, 24, 0.95) 80%);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  overflow: hidden;
+}
+
+#radar-canvas { width: 100%; height: 100%; }
+
+.radar-sweep-beam {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(0, 240, 255, 0.35) 45deg, transparent 46deg);
+  animation: radarRotate 4s linear infinite;
+}
+
+@keyframes radarRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.radar-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Quick Action Bar (Bottom Center Viewport) */
+.floating-quick-bar {
+  position: absolute;
+  bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
+  display: flex;
+  gap: 6px;
 }
 
 .cam-action-btn {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border-glass);
   background: var(--bg-surface);
   color: #fff;
   display: flex;
@@ -616,39 +1035,40 @@ body {
   gap: 6px;
   cursor: pointer;
   backdrop-filter: blur(16px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s;
 }
 
 .cam-action-btn:hover {
   background: var(--bg-surface-elevated);
-  border-color: rgba(255, 255, 255, 0.25);
-  transform: translateY(-1px);
+  border-color: var(--accent-cyan);
 }
 
 /* ==================== 3. FLOATING COCKPIT DOCK ==================== */
 .app-dock {
   height: var(--dock-height);
-  padding: 0 16px 14px 16px;
+  width: 100%;
+  padding: 8px 16px 10px 16px;
   display: flex;
   justify-content: center;
-  z-index: 20;
+  z-index: 50;
+  flex-shrink: 0;
 }
 
 .dock-glass-bar {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1360px;
   height: 100%;
   background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-glass);
   border-radius: 20px;
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  padding: 12px 24px;
+  backdrop-filter: blur(28px) saturate(200%);
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.7);
+  gap: 14px;
 }
 
 .control-pod {
@@ -664,105 +1084,126 @@ body {
   align-items: center;
 }
 
+.pod-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
 .pod-title {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  font-weight: 800;
   color: var(--text-secondary);
+}
+
+.pod-axis-tag {
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
 }
 
 .pod-badge {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-
-.pod-footer {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  text-align: center;
-}
-.pod-footer b {
-  color: var(--text-secondary);
+  font-size: 0.7rem;
   font-weight: 600;
+  color: var(--accent-cyan);
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  padding: 2px 7px;
+  border-radius: 5px;
 }
 
 .joystick-combo {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   flex: 1;
 }
 
-/* Slider */
+/* Throttle Slider */
 .slider-track-wrap {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  height: 120px;
-}
-
-.slider-tag {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  color: var(--text-tertiary);
+  gap: 5px;
+  height: 110px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 4px 6px;
 }
 
 .modern-slider {
   -webkit-appearance: slider-vertical;
   appearance: slider-vertical;
-  width: 8px;
+  width: 9px;
   height: 85px;
-  background: rgba(255, 255, 255, 0.1);
-  accent-color: var(--accent-blue);
+  background: rgba(255, 255, 255, 0.12);
+  accent-color: var(--accent-cyan);
   cursor: pointer;
 }
 
-/* Modern Minimalist Joystick Pad */
+.throttle-pct-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/* Milled Aerospace Gimbals */
+.gimbal-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
 .joystick-pad {
-  width: 130px;
-  height: 130px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, rgba(10, 15, 26, 0.95) 100%);
-  border: 1px solid var(--border-subtle);
+  background: radial-gradient(circle, rgba(30, 41, 59, 0.3) 0%, rgba(6, 10, 20, 0.98) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
   position: relative;
   touch-action: none;
   cursor: grab;
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.8), 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-.joystick-pad:active {
-  cursor: grabbing;
+.joystick-pad:active { cursor: grabbing; }
+
+.gimbal-milled-ring {
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  pointer-events: none;
 }
 
-.pad-subtle-ring {
+.gimbal-subtle-ring {
   position: absolute;
   inset: 24px;
   border-radius: 50%;
-  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border: 1px dashed rgba(0, 240, 255, 0.2);
   pointer-events: none;
 }
 
 .pad-axis {
   position: absolute;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
   pointer-events: none;
 }
 .pad-axis-x { top: 50%; left: 0; width: 100%; height: 1px; }
 .pad-axis-y { top: 0; left: 50%; width: 1px; height: 100%; }
 
 .joystick-handle {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #24324c 0%, #0d1525 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7);
   position: absolute;
   top: 50%;
   left: 50%;
@@ -774,63 +1215,108 @@ body {
   transition: transform 0.05s ease-out;
 }
 
-.handle-pip {
-  width: 10px;
-  height: 10px;
+.knurl-pattern {
+  position: absolute;
+  inset: 3px;
   border-radius: 50%;
-  background: var(--accent-blue);
-  box-shadow: 0 0 10px var(--accent-blue-glow);
+  border: 1px dotted rgba(255, 255, 255, 0.15);
 }
+
+.handle-pip {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+}
+
+/* Trim Controls */
+.trim-bar { display: flex; align-items: center; gap: 4px; }
+.trim-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 0.62rem;
+  padding: 1px 5px;
+  cursor: pointer;
+}
+.trim-readout { font-size: 0.66rem; color: var(--text-tertiary); min-width: 16px; text-align: center; }
+.trim-bar-vertical { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+
+/* Keyboard Guide */
+.pod-footer-keys { display: flex; align-items: center; justify-content: center; gap: 4px; }
+.footer-label { font-size: 0.65rem; color: var(--text-tertiary); }
+.k-chip {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.k-chip.active-key {
+  background: var(--accent-cyan);
+  color: #060a14;
+  border-color: #fff;
+  box-shadow: 0 0 8px var(--accent-cyan);
+}
+.k-divider { color: var(--text-tertiary); }
 
 /* Center Pod */
 .pod-center {
   flex: 1;
   max-width: 440px;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
-/* Tesla / Apple VisionOS Segmented Control */
 .segmented-control {
   display: flex;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 4px;
-  gap: 4px;
+  padding: 3px;
+  gap: 3px;
   width: 100%;
 }
 
 .segment-btn {
   flex: 1;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 8px 4px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 8px 3px;
   border-radius: 8px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
-.segment-btn:hover {
-  color: #fff;
-}
-
+.segment-btn:hover { color: #fff; }
 .segment-btn.active {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.segment-btn.seg-rtl.active {
+  background: rgba(255, 51, 102, 0.25);
+  color: #fff;
 }
 
 .diagnostic-strip {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-subtle);
   border-radius: 10px;
-  padding: 8px 14px;
+  padding: 7px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -840,50 +1326,443 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.7rem;
   color: var(--text-secondary);
 }
+.gamepad-badge.active { color: var(--accent-emerald); }
+.packet-preview { font-size: 0.7rem; color: var(--text-tertiary); }
+.packet-rate-badge { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--accent-emerald); }
+.dot-green { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-emerald); }
 
-.gamepad-badge.active {
-  color: var(--accent-emerald);
+/* ==================== 4. HARDWARE 3D MODAL ==================== */
+.hardware-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-.packet-preview {
-  font-size: 0.7rem;
-  color: var(--text-tertiary);
+.hardware-modal-overlay.open { display: flex; }
+
+.hardware-modal-content {
+  width: 100%;
+  max-width: 950px;
+  height: 80vh;
+  background: #0a0f1d;
+  border: 1px solid var(--border-glass);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
 }
 
-/* ==================== 4. RESPONSIVE DESIGN ==================== */
-@media (max-width: 1024px) {
+.modal-header {
+  padding: 12px 18px;
+  background: rgba(13, 20, 36, 0.8);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title-wrap { display: flex; align-items: center; gap: 10px; }
+.modal-title-wrap h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: #fff; }
+.modal-title-wrap p { font-size: 0.72rem; color: var(--text-secondary); }
+.modal-close-btn { background: transparent; border: none; font-size: 1.6rem; color: var(--text-secondary); cursor: pointer; }
+.modal-body { flex: 1; }
+#hardware-iframe { width: 100%; height: 100%; border: none; }
+
+/* ==================== 5. RESPONSIVE DESIGN (DESKTOP & MOBILE) ==================== */
+/* Desktop Intermediate: Hide heavy panels to avoid overlap on 1024-1250px screens */
+@media (max-width: 1250px) {
   .attitude-card, .motor-card {
+    display: none !important;
+  }
+}
+
+/* Universal Mobile & Tablet Optimizations (< 900px) */
+@media (max-width: 900px) {
+  .desktop-only {
+    display: none !important;
+  }
+  
+  :root {
+    --header-height: 50px;
+    --dock-height: 200px;
+  }
+
+  .app-header {
+    padding: 4px 10px;
+  }
+
+  .header-inner {
+    gap: 8px;
+  }
+
+  .brand-title {
+    font-size: 0.88rem;
+  }
+
+  .badge-5g {
+    display: none;
+  }
+
+  .vehicle-tab {
+    padding: 3px 6px;
+    font-size: 0.65rem;
+  }
+
+  .telem-badge {
+    padding: 3px 6px;
+    gap: 5px;
+  }
+
+  .arm-btn {
+    padding: 6px 12px;
+    font-size: 0.72rem;
+  }
+
+  .emergency-btn {
+    padding: 6px 10px;
+    font-size: 0.72rem;
+  }
+
+  .aviation-tape {
+    min-width: 65px;
+    padding: 6px 8px;
+  }
+  .tape-current-val {
+    font-size: 1.1rem;
+  }
+
+  .compass-ribbon-track {
+    width: 240px;
+  }
+
+  .dock-glass-bar {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .joystick-pad {
+    width: 105px;
+    height: 105px;
+  }
+
+  .joystick-handle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .pod-center {
+    max-width: 280px;
+  }
+
+  .segment-btn {
+    font-size: 0.66rem;
+    padding: 6px 2px;
+  }
+}
+
+/* Dedicated Mobile Portrait (< 640px) */
+@media (max-width: 640px) {
+  :root {
+    --header-height: 46px;
+    --dock-height: 230px;
+  }
+
+  .app-header {
+    padding: 3px 8px;
+  }
+
+  .header-inner {
+    justify-content: space-between;
+  }
+
+  .brand-group {
+    gap: 6px;
+  }
+
+  .brand-mark-hex {
+    width: 28px;
+    height: 28px;
+  }
+
+  .brand-title {
+    font-size: 0.82rem;
+  }
+
+  .vehicle-switcher {
+    display: none; /* Can be switched in menu or desktop */
+  }
+
+  .header-center {
+    gap: 4px;
+    flex: initial;
+  }
+
+  .telem-label {
+    display: none;
+  }
+
+  .phone-chip {
+    padding: 2px 5px;
+    font-size: 0.62rem;
+  }
+
+  .arm-btn {
+    padding: 5px 10px;
+    font-size: 0.68rem;
+  }
+
+  .emergency-btn {
+    padding: 5px 8px;
+    font-size: 0.68rem;
+  }
+
+  /* Viewport Takes Top Half */
+  .viewport-stage {
+    flex: 1;
+    min-height: 180px;
+  }
+
+  .standby-overlay-bar {
+    bottom: 40px;
+    width: 95%;
+  }
+
+  .standby-pill {
+    padding: 6px 10px;
+    font-size: 0.65rem;
+  }
+
+  .compass-ribbon-container {
+    top: 8px;
+  }
+
+  .compass-ribbon-track {
+    width: 200px;
+    height: 24px;
+  }
+
+  .tape-left { left: 8px; }
+  .tape-right { right: 8px; }
+
+  .floating-quick-bar {
+    bottom: 8px;
+    gap: 4px;
+  }
+
+  .cam-action-btn {
+    padding: 4px 10px;
+    font-size: 0.62rem;
+  }
+
+  /* Mobile Ergonomic Touch Dock (Bottom Half) */
+  .app-dock {
+    height: var(--dock-height);
+    padding: 4px 6px 8px 6px;
+  }
+
+  .dock-glass-bar {
+    padding: 6px 8px;
+    border-radius: 16px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .control-pod {
+    height: 100%;
+  }
+
+  .pod-header {
+    margin-bottom: 2px;
+  }
+
+  .pod-title {
+    font-size: 0.68rem;
+  }
+
+  .pod-badge {
+    font-size: 0.62rem;
+    padding: 1px 4px;
+  }
+
+  .joystick-pad {
+    width: 96px;
+    height: 96px;
+  }
+
+  .joystick-handle {
+    width: 36px;
+    height: 36px;
+  }
+
+  .pod-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 120px;
+    gap: 6px;
+  }
+
+  .segmented-control {
+    flex-direction: column;
+    padding: 2px;
+    gap: 2px;
+    border-radius: 8px;
+  }
+
+  .segment-btn {
+    font-size: 0.62rem;
+    padding: 5px 2px;
+    border-radius: 5px;
+  }
+
+  .diagnostic-strip {
+    padding: 4px 6px;
+    border-radius: 6px;
+    font-size: 0.62rem;
+  }
+
+  .packet-preview {
+    font-size: 0.58rem;
+    text-align: center;
+  }
+}
+
+/* Compact Smartphone Optimization (< 480px: Galaxy S21 FE, iPhone, Pixel) */
+@media (max-width: 480px) {
+  .brand-titles {
+    display: none;
+  }
+
+  .signal-meter {
+    display: none;
+  }
+
+  .header-inner {
+    gap: 3px;
+  }
+
+  .telem-badge {
+    padding: 2px 4px;
+    gap: 3px;
+  }
+
+  .phone-chip {
+    padding: 1px 4px;
+    font-size: 0.58rem;
+  }
+
+  .arm-btn {
+    padding: 4px 8px;
+    font-size: 0.64rem;
+  }
+
+  .emergency-btn {
+    padding: 4px 6px;
+    font-size: 0.64rem;
+  }
+
+  .joystick-pad {
+    width: 88px;
+    height: 88px;
+  }
+
+  .joystick-handle {
+    width: 34px;
+    height: 34px;
+  }
+
+  .pod-center {
+    max-width: 105px;
+  }
+
+  .segment-btn {
+    font-size: 0.58rem;
+    padding: 4px 1px;
+  }
+
+  .diagnostic-strip {
     display: none;
   }
 }
 
-@media (max-width: 768px) {
+/* Dedicated Mobile Landscape Mode (Phone held horizontally) */
+@media (max-height: 520px) and (orientation: landscape) {
+  :root {
+    --header-height: 40px;
+    --dock-height: 130px;
+  }
+
   .app-header {
-    top: 8px;
-    padding: 0 8px;
+    padding: 2px 10px;
   }
-  .brand-tag, .telemetry-item:nth-child(4), .telemetry-item:nth-child(5) {
-    display: none;
+
+  .brand-title {
+    font-size: 0.8rem;
   }
+
+  .arm-btn, .emergency-btn {
+    padding: 4px 10px;
+    font-size: 0.68rem;
+  }
+
+  .viewport-stage {
+    flex: 1;
+  }
+
+  .compass-ribbon-container {
+    top: 4px;
+  }
+
+  .compass-ribbon-track {
+    width: 200px;
+    height: 22px;
+  }
+
+  .tape-left { left: 8px; top: 50%; }
+  .tape-right { right: 8px; top: 50%; }
+
+  .floating-quick-bar {
+    bottom: 4px;
+  }
+
   .app-dock {
-    height: 240px;
-    padding: 0 8px 8px 8px;
+    height: var(--dock-height);
+    padding: 2px 8px 6px 8px;
   }
+
   .dock-glass-bar {
-    padding: 10px 14px;
+    padding: 4px 12px;
+    border-radius: 14px;
   }
-  .pod-center {
-    display: none;
-  }
-  .slider-track-wrap {
-    display: none;
-  }
+
   .joystick-pad {
-    width: 115px;
-    height: 115px;
+    width: 90px;
+    height: 90px;
+  }
+
+  .joystick-handle {
+    width: 32px;
+    height: 32px;
+  }
+
+  .pod-center {
+    max-width: 240px;
+  }
+
+  .segment-btn {
+    font-size: 0.62rem;
+    padding: 4px 2px;
   }
 }

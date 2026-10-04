@@ -105,29 +105,31 @@
     <canvas id="viewer"></canvas>
     
     <div class="info-panel">
-        <h1>🛸 SUPER-DRONE FRAME</h1>
+        <h1>✈️ SUPER-WING STEALTH</h1>
         <p>
-            Wheelbase: <span class="stat">226mm</span> (True-X)<br>
-            Arms: <span class="stat">7mm</span> thick (3D print optimized)<br>
-            Stack: <span class="stat">30.5 + 20mm</span> dual mount<br>
-            Motors: <span class="stat">2207</span> (16×19mm M3)<br>
+            Wingspan: <span class="stat">900mm</span> Delta<br>
+            Sweep: <span class="stat">35°</span> Leading Edge<br>
+            Root Chord: <span class="stat">450mm</span><br>
+            Motor: <span class="stat">2207</span> Pusher (rear)<br>
+            Servos: <span class="stat">2× MG90S</span> Elevons<br>
             Triangles: <span class="stat" id="tri-count">—</span><br>
-            Material: <span class="stat">PETG / CF-PETG</span>
+            Material: <span class="stat">LW-PLA / CF-PETG</span>
         </p>
     </div>
     
     <div class="part-selector">
-        <h2>PARTS</h2>
-        <button class="part-btn active" data-file="full_frame_assembled.stl">★ Full Assembly</button>
-        <button class="part-btn" data-file="bottom_plate.stl">Bottom Plate</button>
-        <button class="part-btn" data-file="top_plate.stl">Top Plate</button>
-        <button class="part-btn" data-file="arm_front_right.stl">Arm (Front-Right)</button>
-        <button class="part-btn" data-file="arm_front_left.stl">Arm (Front-Left)</button>
-        <button class="part-btn" data-file="arm_rear_left.stl">Arm (Rear-Left)</button>
-        <button class="part-btn" data-file="arm_rear_right.stl">Arm (Rear-Right)</button>
-        <button class="part-btn" data-file="camera_mount_micro.stl">Camera Mount</button>
-        <button class="part-btn" data-file="battery_pad.stl">Battery Pad</button>
-        <button class="part-btn" data-file="s21fe_fpv_cradle.stl">S21 FE Cradle</button>
+        <h2>STEALTH WING PARTS</h2>
+        <button class="part-btn active" data-file="full_assembly.stl">★ Full Assembly</button>
+        <button class="part-btn" data-file="stealth_wing_body.stl">Wing Body (900mm)</button>
+        <button class="part-btn" data-file="nose_cone_stealth.stl">Stealth Nose Cone</button>
+        <button class="part-btn" data-file="fuselage_bay.stl">Fuselage Bay</button>
+        <button class="part-btn" data-file="motor_mount_pusher.stl">Motor Mount (2207)</button>
+        <button class="part-btn" data-file="wing_rib_right.stl">Wing Rib (Right)</button>
+        <button class="part-btn" data-file="wing_rib_left.stl">Wing Rib (Left)</button>
+        <button class="part-btn" data-file="elevon_servo_mount.stl">Elevon Servo Mount</button>
+        <button class="part-btn" data-file="battery_sled_4s.stl">Battery Sled (4S)</button>
+        <button class="part-btn" data-file="avionics_tray.stl">Avionics Tray</button>
+        <button class="part-btn" data-file="s21fe_nose_cradle.stl">S21 FE Cradle</button>
     </div>
     
     <div class="controls-hint">
@@ -362,7 +364,7 @@
         });
         
         // Load default model
-        loadSTL('full_frame_assembled.stl');
+        loadSTL('full_assembly.stl');
         animate();
     })();
     </script>

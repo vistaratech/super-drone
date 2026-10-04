@@ -22,17 +22,28 @@ function log(msg) {
   logBox.textContent = `[${new Date().toLocaleTimeString()}] ${msg}\n` + logBox.textContent.slice(0, 1000);
 }
 
+// Helper to update status badges
+function setBadge(el, text, isConnected) {
+  el.className = `status-badge ${isConnected ? 'connected' : ''}`;
+  el.innerHTML = `<span class="status-dot"></span><span>${text}</span>`;
+}
+
 // 1. REGISTER WITH 5G CLOUD RELAY
 socket.on('connect', () => {
-  srvStatus.textContent = 'CONNECTED (5G)';
-  srvStatus.className = 'status-badge connected';
-  socket.emit('register', 'drone');
-  log('Registered as 5G Drone Endpoint');
+  setBadge(srvStatus, 'CONNECTED (5G)', true);
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  socket.emit('register', {
+    role: 'drone',
+    isMobile: isMobile,
+    deviceModel: isMobile ? 'Samsung Galaxy S21 FE' : 'Desktop Client (Test)',
+    bleConnected: commandCharacteristic !== null,
+    streamActive: localStream !== null
+  });
+  log(`Registered as ${isMobile ? 'Samsung S21 FE' : 'Desktop Browser'} Endpoint`);
 });
 
 socket.on('disconnect', () => {
-  srvStatus.textContent = 'DISCONNECTED';
-  srvStatus.className = 'status-badge';
+  setBadge(srvStatus, 'DISCONNECTED', false);
   log('5G Connection Lost!');
 });
 
@@ -64,9 +75,9 @@ btnConnectBle.addEventListener('click', async () => {
     const service = await server.getPrimaryService(SERVICE_UUID);
     commandCharacteristic = await service.getCharacteristic(CHAR_UUID);
 
-    bleStatus.textContent = 'CONNECTED (BLE)';
-    bleStatus.className = 'status-badge connected';
-    btnConnectBle.textContent = '✅ ESP32 CONNECTED';
+    setBadge(bleStatus, 'CONNECTED (BLE)', true);
+    btnConnectBle.innerHTML = `<span>✅ ESP32 CONNECTED</span>`;
+    socket.emit('drone_hardware_status', { bleConnected: true });
     log('ESP32 Super Mini Connected via BLE!');
   } catch (err) {
     log(`BLE Connection Failed: ${err.message}`);
@@ -75,10 +86,10 @@ btnConnectBle.addEventListener('click', async () => {
 });
 
 function onBleDisconnected() {
-  bleStatus.textContent = 'DISCONNECTED';
-  bleStatus.className = 'status-badge';
-  btnConnectBle.textContent = '🔗 1. CONNECT ESP32 (BLE)';
+  setBadge(bleStatus, 'DISCONNECTED', false);
+  btnConnectBle.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"></polyline></svg><span>1. CONNECT ESP32 (BLE)</span>`;
   commandCharacteristic = null;
+  socket.emit('drone_hardware_status', { bleConnected: false });
   log('ESP32 BLE Disconnected! Failsafe trigger imminent.');
 }
 
@@ -96,9 +107,9 @@ btnStartStream.addEventListener('click', async () => {
       audio: false
     });
     localPreview.srcObject = localStream;
-    camStatus.textContent = 'ACTIVE (1080p)';
-    camStatus.className = 'status-badge connected';
-    btnStartStream.textContent = '✅ 5G STREAM BROADCASTING';
+    setBadge(camStatus, 'ACTIVE (1080p)', true);
+    btnStartStream.innerHTML = `<span>✅ 5G STREAM BROADCASTING</span>`;
+    socket.emit('drone_hardware_status', { streamActive: true });
 
     initWebRTC();
   } catch (err) {

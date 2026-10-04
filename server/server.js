@@ -3,13 +3,42 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 const cors = require('cors');
+const os = require('os');
 
 const app = express();
 app.use(cors());
 
-// Serve both Web Controller and Drone Bridge static files
+function getLocalIp() {
+  const nets = os.networkInterfaces();
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) {
+        return net.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+
+// Serve Web Controller, Drone Bridge, and Hardware static files
 app.use('/controller', express.static(path.join(__dirname, '../web-controller')));
 app.use('/bridge', express.static(path.join(__dirname, '../drone-bridge')));
+app.use('/hardware', express.static(path.join(__dirname, '../hardware')));
+
+// Redirect root to controller
+app.get('/', (req, res) => {
+  res.redirect('/controller');
+});
+
+// Server status API endpoint
+app.get('/api/status', (req, res) => {
+  res.json({
+    droneOnline: droneSocket !== null,
+    droneInfo,
+    serverIp: getLocalIp(),
+    port: PORT
+  });
+});
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -23,21 +52,49 @@ const io = new Server(server, {
 
 let droneSocket = null;
 let pilotSocket = null;
-let lastHeartbeat = Date.now();
+let droneInfo = {
+  online: false,
+  isMobile: false,
+  deviceModel: 'Not Connected',
+  bleConnected: false,
+  streamActive: false
+};
 
 io.on('connection', (socket) => {
   console.log(`[+] New Connection: ${socket.id}`);
 
   // Handshake registration
-  socket.on('register', (role) => {
+  socket.on('register', (payload) => {
+    const role = typeof payload === 'string' ? payload : (payload && payload.role);
     if (role === 'drone') {
       droneSocket = socket;
-      console.log(`[🛸 DRONE REGISTERED] Socket ID: ${socket.id}`);
-      if (pilotSocket) pilotSocket.emit('drone_status', { online: true });
+      const isMobile = typeof payload === 'object' ? !!payload.isMobile : false;
+      const deviceModel = (typeof payload === 'object' && payload.deviceModel) || (isMobile ? 'Samsung Galaxy S21 FE' : 'Desktop Browser');
+      droneInfo = {
+        online: true,
+        isMobile,
+        deviceModel,
+        bleConnected: (payload && payload.bleConnected) || false,
+        streamActive: (payload && payload.streamActive) || false
+      };
+      console.log(`[🛸 DRONE REGISTERED] Socket ID: ${socket.id} | Device: ${deviceModel} (isMobile: ${isMobile})`);
+      if (pilotSocket) {
+        pilotSocket.emit('drone_status', { online: true, droneInfo, serverIp: getLocalIp(), port: PORT });
+      }
     } else if (role === 'pilot') {
       pilotSocket = socket;
       console.log(`[🕹️ PILOT REGISTERED] Socket ID: ${socket.id}`);
-      socket.emit('drone_status', { online: droneSocket !== null });
+      socket.emit('drone_status', { online: droneSocket !== null, droneInfo, serverIp: getLocalIp(), port: PORT });
+    }
+  });
+
+  // Hardware status updates from phone gateway
+  socket.on('drone_hardware_status', (data) => {
+    if (socket === droneSocket) {
+      droneInfo = { ...droneInfo, ...data };
+      if (pilotSocket) {
+        pilotSocket.emit('drone_status', { online: true, droneInfo, serverIp: getLocalIp(), port: PORT });
+      }
     }
   });
 
@@ -85,7 +142,8 @@ io.on('connection', (socket) => {
     if (socket === droneSocket) {
       console.warn('❌ [DRONE DISCONNECTED] Triggering failsafe alert to pilot');
       droneSocket = null;
-      if (pilotSocket) pilotSocket.emit('drone_status', { online: false });
+      droneInfo = { online: false, isMobile: false, deviceModel: 'Not Connected', bleConnected: false, streamActive: false };
+      if (pilotSocket) pilotSocket.emit('drone_status', { online: false, droneInfo, serverIp: getLocalIp(), port: PORT });
     } else if (socket === pilotSocket) {
       console.log('[-] Pilot disconnected');
       pilotSocket = null;

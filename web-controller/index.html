@@ -2,83 +2,123 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SuperDrone 5G | Next-Gen BVLOS Ground Control Station</title>
-  <!-- 2026 Modern Typography: Plus Jakarta Sans & JetBrains Mono -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>SuperDrone 5G BVLOS | Aerospace Ground Control Cockpit</title>
+  <!-- Futuristic Typography: Outfit + JetBrains Mono + Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="/socket.io/socket.io.js"></script>
 </head>
-<body>
+<body class="quad-mode">
 
-  <!-- ==================== 1. FLOATING MODERN HEADER ==================== -->
+  <!-- ==================== 1. ENTERPRISE AEROSPACE NAVIGATION BAR ==================== -->
   <header class="app-header">
-    <div class="header-glass-pill">
+    <div class="header-inner">
       
-      <!-- Brand & Status -->
-      <div class="header-brand">
-        <div class="brand-mark">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 19 8.5 12 15 5 8.5 12 2"></polygon>
-            <polygon points="12 9 19 15.5 12 22 5 15.5 12 9"></polygon>
-          </svg>
-        </div>
-        <div class="brand-info">
-          <span class="brand-name">SuperDrone</span>
-          <span class="brand-tag">5G BVLOS</span>
-        </div>
-      </div>
-
-      <!-- Center Telemetry Badges (Apple VisionOS / Tesla Minimalist Style) -->
-      <div class="telemetry-bar">
-        <!-- 5G Status -->
-        <div class="telemetry-item" id="item-link">
-          <span class="status-dot online" id="link-dot"></span>
-          <span class="telemetry-label">Network</span>
-          <span class="telemetry-val" id="val-link">5G Active</span>
-        </div>
-
-        <!-- Latency -->
-        <div class="telemetry-item" id="item-ping">
-          <span class="telemetry-label">Latency</span>
-          <span class="telemetry-val mono" id="val-ping">24 ms</span>
-        </div>
-
-        <!-- Mission Timer -->
-        <div class="telemetry-item" id="item-timer">
-          <span class="telemetry-label">Timer</span>
-          <span class="telemetry-val mono" id="val-met">00:00:00</span>
-        </div>
-
-        <!-- Battery -->
-        <div class="telemetry-item" id="item-batt">
-          <span class="telemetry-label">Power</span>
-          <div class="battery-chip">
-            <div class="battery-gauge"><div class="battery-fill" id="batt-fill" style="width: 98%;"></div></div>
-            <span class="telemetry-val mono" id="val-batt">98%</span>
+      <!-- Left: Brand & Vehicle Profile -->
+      <div class="header-left">
+        <div class="brand-group">
+          <div class="brand-mark-hex">
+            <svg class="drone-icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polygon points="12 2 19 8.5 12 15 5 8.5 12 2"></polygon>
+              <polygon points="12 9 19 15.5 12 22 5 15.5 12 9"></polygon>
+            </svg>
+          </div>
+          <div class="brand-titles">
+            <div class="brand-title">SUPERDRONE <span class="badge-5g">5G</span></div>
+            <div class="brand-subtitle desktop-only">BVLOS GCS Cockpit</div>
           </div>
         </div>
 
-        <!-- Signal Strength -->
-        <div class="telemetry-item" id="item-signal">
-          <span class="telemetry-label">Signal</span>
-          <span class="telemetry-val mono" id="val-signal">-68 dBm</span>
+        <!-- Vehicle Mode Switcher -->
+        <div class="vehicle-switcher desktop-only" id="vehicle-switcher" title="Switch Flight Profile">
+          <button class="vehicle-tab active" id="tab-quad" data-vehicle="quad">
+            <span class="v-icon">🛸</span>
+            <span class="v-name">Quad-X</span>
+          </button>
+          <button class="vehicle-tab" id="tab-wing" data-vehicle="wing">
+            <span class="v-icon">✈️</span>
+            <span class="v-name">Stealth Wing</span>
+          </button>
         </div>
       </div>
 
-      <!-- Action Controls: Arm & Emergency -->
-      <div class="header-actions">
-        <!-- Modern Sliding Arm Switch -->
-        <button class="arm-btn disarmed" id="btn-arm-toggle">
-          <span class="arm-indicator"></span>
-          <span class="arm-title" id="arm-text">Standby</span>
+      <!-- Center: Key Mission Telemetry Badges -->
+      <div class="header-center">
+        <!-- 5G Mobile Connection State -->
+        <div class="telem-badge" id="item-phone-link" title="Cellular Gateway Connection">
+          <div class="signal-meter">
+            <span class="sig-bar bar-1"></span>
+            <span class="sig-bar bar-2"></span>
+            <span class="sig-bar bar-3"></span>
+            <span class="sig-bar bar-4"></span>
+          </div>
+          <div class="telem-col">
+            <span class="telem-label">VEHICLE LINK</span>
+            <div class="phone-chip disconnected" id="mobile-status-pill">
+              <span class="phone-dot"></span>
+              <span id="mobile-status-text">PHONE: OFFLINE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Latency Ping Gauge -->
+        <div class="telem-badge desktop-only" id="item-ping" title="Round Trip Latency">
+          <div class="ping-pulse-dot ping-idle" id="ping-dot"></div>
+          <div class="telem-col">
+            <span class="telem-label">LATENCY</span>
+            <span class="telem-val mono" id="val-ping">-- ms</span>
+          </div>
+        </div>
+
+        <!-- GNSS Satellites -->
+        <div class="telem-badge desktop-only" id="item-gps" title="GNSS Satellites">
+          <div class="telem-col">
+            <span class="telem-label">GNSS</span>
+            <span class="telem-val mono" id="val-sat">-- SATS <span class="fix-tag no-fix" id="fix-tag">NO FIX</span></span>
+          </div>
+        </div>
+
+        <!-- Power & Battery -->
+        <div class="telem-badge" id="item-power" title="LiPo Battery State">
+          <div class="battery-gauge-modern">
+            <div class="batt-cell"><div class="batt-fill" id="batt-fill" style="width: 0%;"></div></div>
+            <div class="batt-cap"></div>
+          </div>
+          <div class="telem-col">
+            <span class="telem-label">POWER</span>
+            <span class="telem-val mono" id="val-batt">--%</span>
+          </div>
+        </div>
+
+        <!-- Flight Timer -->
+        <div class="telem-badge desktop-only" id="item-timer">
+          <div class="telem-col">
+            <span class="telem-label">FLIGHT TIME</span>
+            <span class="telem-val mono glowing-time" id="val-met">00:00:00</span>
+          </div>
+        </div>
+
+        <!-- Simulator Mode Toggle -->
+        <button class="sim-toggle-pill off desktop-only" id="btn-sim-toggle" title="Toggle Simulation Mode">
+          <span class="sim-dot"></span>
+          <span class="sim-text" id="sim-status-text">SIM OFF</span>
+        </button>
+      </div>
+
+      <!-- Right: Master Arm & Emergency RTL -->
+      <div class="header-right">
+        <!-- Master Arm Toggle -->
+        <button class="arm-btn disarmed" id="btn-arm-toggle" title="Vehicle Master Arm Switch">
+          <span class="arm-led"></span>
+          <span class="arm-title" id="arm-text">STANDBY</span>
         </button>
 
         <!-- Emergency RTL Button -->
         <button class="emergency-btn" id="btn-emergency" title="Emergency Return-To-Home">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
             <line x1="12" y1="9" x2="12" y2="13"></line>
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -86,16 +126,23 @@
           <span>RTL</span>
         </button>
 
-        <!-- Minimalist Utility Icons -->
-        <div class="utility-group">
-          <button class="icon-btn active" id="btn-audio-toggle" title="Sound Effects">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Utility Icons -->
+        <div class="utility-tools desktop-only">
+          <button class="icon-btn" id="btn-hardware-modal" title="3D Frame Specs">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </button>
+          <button class="icon-btn active" id="btn-audio-toggle" title="Audio Effects">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
               <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
             </svg>
           </button>
           <button class="icon-btn" id="btn-fullscreen-toggle" title="Fullscreen">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="15 3 21 3 21 9"></polyline>
               <polyline points="9 21 3 21 3 15"></polyline>
               <line x1="21" y1="3" x2="14" y2="10"></line>
@@ -103,206 +150,327 @@
             </svg>
           </button>
         </div>
-
       </div>
 
     </div>
   </header>
 
-  <!-- ==================== 2. FULL VIEWPORT CAMERA & MODERN HUD ==================== -->
+  <!-- ==================== 2. PRIMARY VIEWPORT & AVIATION HUD ==================== -->
   <main class="viewport-stage" id="viewport">
-    <!-- Camera Video Stream Layer -->
+    <!-- Camera Video Layer -->
     <div class="video-wrapper" id="video-wrapper">
       <video id="drone-video" autoplay playsinline muted></video>
 
-      <!-- Minimalist Standby Screen -->
-      <div class="standby-screen" id="standby-radar">
-        <div class="pulse-beacon-ring">
-          <div class="pulse-wave wave-1"></div>
-          <div class="pulse-wave wave-2"></div>
-          <div class="beacon-core">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-          </div>
-        </div>
-        <div class="standby-content">
-          <h3>Awaiting 5G Video Stream</h3>
-          <p>Connect Samsung Galaxy S21 FE to stream 1080p 60fps ultra-low latency FPV</p>
-          <div class="gateway-chip">
-            <span class="dot-blink"></span>
-            <span>Edge Relay Broker: Ready on Port 3000</span>
-          </div>
+      <!-- 3D Synthetic Vision Canvas -->
+      <canvas id="svs-canvas" class="svs-canvas"></canvas>
+
+      <!-- Prominent Phone Connection Banner -->
+      <div class="standby-overlay-bar" id="standby-banner">
+        <div class="standby-pill disconnected" id="phone-connect-banner">
+          <span class="banner-warn-icon">⚠️</span>
+          <span class="banner-title" id="banner-title">Samsung Galaxy S21 FE Not Connected</span>
+          <span class="divider">&bull;</span>
+          <span class="subtext" id="banner-hint">Open <b>http://<span id="server-lan-ip">172.20.10.3</span>:3000/bridge</b> on Phone</span>
         </div>
       </div>
     </div>
 
-    <!-- Crisp Minimal Canvas HUD -->
+    <!-- Canvas Military HUD -->
     <canvas id="hud-canvas" class="hud-canvas"></canvas>
 
-    <!-- Floating Minimal Compass Tape -->
-    <div class="floating-heading">
-      <div class="heading-pip">▲</div>
-      <div class="heading-readout mono" id="heading-deg-text">352° N</div>
+    <!-- Compass Ribbon -->
+    <div class="compass-ribbon-container">
+      <div class="compass-marker-needle">▼</div>
+      <div class="compass-ribbon-track" id="compass-track">
+        <canvas id="compass-canvas" width="380" height="28"></canvas>
+      </div>
+      <div class="compass-degrees-pill mono" id="heading-deg-text">352° N</div>
     </div>
 
-    <!-- Floating Clean Glass Gauges -->
-    <div class="flight-hud-pill hud-left">
-      <div class="gauge-title">SPEED</div>
-      <div class="gauge-number mono" id="hud-speed-val">00.0</div>
-      <div class="gauge-unit">KM/H</div>
+    <!-- Airspeed Tape (Left) -->
+    <div class="aviation-tape tape-left" id="tape-airspeed">
+      <div class="tape-header">SPEED</div>
+      <div class="tape-window">
+        <span class="tape-current-val mono" id="hud-speed-val">00.0</span>
+      </div>
+      <div class="tape-footer">KM/H</div>
     </div>
 
-    <div class="flight-hud-pill hud-right">
-      <div class="gauge-title">ALTITUDE</div>
-      <div class="gauge-number mono" id="hud-alt-val">014.2</div>
-      <div class="gauge-unit">METERS</div>
-    </div>
-
-    <!-- Floating Modern Attitude Card (Top Left) -->
-    <div class="glass-card attitude-card">
-      <div class="card-caption">FLIGHT ATTITUDE</div>
-      <div class="data-row">
-        <span>Pitch</span>
-        <span class="mono bold" id="hud-pitch-deg">+0.0°</span>
+    <!-- Altitude Tape with VSI (Right) -->
+    <div class="aviation-tape tape-right" id="tape-altitude">
+      <div class="tape-header">ALTITUDE</div>
+      <div class="tape-window">
+        <span class="tape-current-val mono" id="hud-alt-val">00.0</span>
       </div>
-      <div class="data-row">
-        <span>Roll</span>
-        <span class="mono bold" id="hud-roll-deg">+0.0°</span>
-      </div>
-      <div class="data-row">
-        <span>G-Force</span>
-        <span class="mono bold" id="hud-g-load">1.00 G</span>
-      </div>
-      <div class="data-row">
-        <span>Coordinates</span>
-        <span class="mono" id="hud-gps">13.08° N, 80.27° E</span>
+      <div class="tape-footer">M AGL</div>
+      <div class="vsi-meter desktop-only">
+        <div class="vsi-track"><div class="vsi-needle" id="vsi-needle"></div></div>
+        <span class="vsi-label mono" id="vsi-val">+0.0 m/s</span>
       </div>
     </div>
 
-    <!-- Floating 4-Motor Power Card (Top Right) -->
-    <div class="glass-card motor-card" id="drone-thrust-panel">
-      <div class="card-caption">ESC THRUST OUTPUT</div>
-      <div class="motors-grid">
-        <div class="motor-unit">
-          <div class="motor-label">FL</div>
-          <div class="motor-bar-bg"><div class="motor-bar-val" id="thrust-m1"></div></div>
-          <div class="motor-pwm mono" id="val-m1">1000</div>
+    <!-- Flight Attitude Telemetry Card (Top Left - Desktop Only) -->
+    <div class="glass-card attitude-card desktop-only">
+      <div class="card-caption">
+        <span class="card-title">FLIGHT ATTITUDE</span>
+        <span class="pulse-chip-live">IMU 6-DOF</span>
+      </div>
+      <div class="card-stats-grid">
+        <div class="data-row">
+          <span class="row-label">Pitch</span>
+          <span class="mono bold text-cyan" id="hud-pitch-deg">+0.0°</span>
         </div>
-        <div class="motor-unit">
-          <div class="motor-label">FR</div>
-          <div class="motor-bar-bg"><div class="motor-bar-val" id="thrust-m2"></div></div>
-          <div class="motor-pwm mono" id="val-m2">1000</div>
+        <div class="data-row">
+          <span class="row-label">Roll</span>
+          <span class="mono bold text-cyan" id="hud-roll-deg">+0.0°</span>
         </div>
-        <div class="motor-unit">
-          <div class="motor-label">RL</div>
-          <div class="motor-bar-bg"><div class="motor-bar-val" id="thrust-m3"></div></div>
-          <div class="motor-pwm mono" id="val-m3">1000</div>
+        <div class="data-row">
+          <span class="row-label">Yaw Heading</span>
+          <span class="mono bold" id="hud-yaw-deg">352°</span>
         </div>
-        <div class="motor-unit">
-          <div class="motor-label">RR</div>
-          <div class="motor-bar-bg"><div class="motor-bar-val" id="thrust-m4"></div></div>
-          <div class="motor-pwm mono" id="val-m4">1000</div>
+        <div class="data-row">
+          <span class="row-label">G-Load</span>
+          <span class="mono bold" id="hud-g-load">1.00 G</span>
+        </div>
+        <div class="data-row">
+          <span class="row-label">Climb Rate</span>
+          <span class="mono bold" id="hud-climbrate">0.0 m/s</span>
+        </div>
+        <div class="data-row divider-top">
+          <span class="row-label">GPS</span>
+          <span class="mono text-muted text-small" id="hud-gps">Awaiting Phone GPS</span>
         </div>
       </div>
     </div>
 
-    <!-- Floating Snapshot Pill Button -->
-    <div class="floating-camera-tools">
-      <button class="cam-action-btn" id="btn-snapshot">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-          <circle cx="12" cy="13" r="4"></circle>
-        </svg>
-        <span>Capture FPV</span>
-      </button>
+    <!-- Actuators Card (Top Right - Desktop Only) -->
+    <div class="glass-card motor-card desktop-only" id="propulsion-card">
+      <!-- Quad View -->
+      <div class="quad-prop-view" id="quad-prop-view">
+        <div class="card-caption">
+          <span class="card-title">QUAD-X ESC</span>
+          <span class="pulse-chip-live mono" id="quad-total-amps">0.0A</span>
+        </div>
+        <div class="motors-grid">
+          <div class="motor-unit">
+            <div class="motor-label-row"><span class="motor-label">M1</span><span class="motor-rpm mono" id="rpm-m1">0 RPM</span></div>
+            <div class="motor-bar-bg"><div class="motor-bar-val" id="thrust-m1"></div></div>
+            <div class="motor-pwm-row"><span class="motor-pwm mono" id="val-m1">1000us</span><span class="motor-pct mono" id="pct-m1">0%</span></div>
+          </div>
+          <div class="motor-unit">
+            <div class="motor-label-row"><span class="motor-label">M2</span><span class="motor-rpm mono" id="rpm-m2">0 RPM</span></div>
+            <div class="motor-bar-bg"><div class="motor-bar-val" id="thrust-m2"></div></div>
+            <div class="motor-pwm-row"><span class="motor-pwm mono" id="val-m2">1000us</span><span class="motor-pct mono" id="pct-m2">0%</span></div>
+          </div>
+          <div class="motor-unit">
+            <div class="motor-label-row"><span class="motor-label">M3</span><span class="motor-rpm mono" id="rpm-m3">0 RPM</span></div>
+            <div class="motor-bar-bg"><div class="motor-bar-val" id="thrust-m3"></div></div>
+            <div class="motor-pwm-row"><span class="motor-pwm mono" id="val-m3">1000us</span><span class="motor-pct mono" id="pct-m3">0%</span></div>
+          </div>
+          <div class="motor-unit">
+            <div class="motor-label-row"><span class="motor-label">M4</span><span class="motor-rpm mono" id="rpm-m4">0 RPM</span></div>
+            <div class="motor-bar-bg"><div class="motor-bar-val" id="thrust-m4"></div></div>
+            <div class="motor-pwm-row"><span class="motor-pwm mono" id="val-m4">1000us</span><span class="motor-pct mono" id="pct-m4">0%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wing View -->
+      <div class="wing-prop-view" id="wing-prop-view" style="display: none;">
+        <div class="card-caption">
+          <span class="card-title">DELTA WING</span>
+          <span class="pulse-chip-live mono">2207 PUSHER</span>
+        </div>
+        <div class="wing-actuators-stack">
+          <div class="motor-unit">
+            <div class="motor-label-row"><span class="motor-label">Pusher</span><span class="motor-rpm mono" id="wing-rpm">0 RPM</span></div>
+            <div class="motor-bar-bg"><div class="motor-bar-val" id="thrust-wing"></div></div>
+            <div class="motor-pwm-row"><span class="motor-pwm mono" id="val-wing-pwm">1000us</span><span class="motor-pct mono" id="pct-wing">0%</span></div>
+          </div>
+          <div class="elevon-servos-grid">
+            <div class="servo-unit"><span class="servo-title">L-Elevon</span><div class="servo-gauge"><div class="servo-needle" id="needle-elevon-l"></div></div><span class="servo-angle mono" id="val-elevon-l">0.0°</span></div>
+            <div class="servo-unit"><span class="servo-title">R-Elevon</span><div class="servo-gauge"><div class="servo-needle" id="needle-elevon-r"></div></div><span class="servo-angle mono" id="val-elevon-r">0.0°</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mini Radar (Desktop Only) -->
+    <div class="tactical-radar-card desktop-only" id="radar-card" title="Tactical Radar">
+      <div class="radar-header"><span>RADAR</span><span class="radar-range mono">1.2 KM</span></div>
+      <div class="radar-display">
+        <canvas id="radar-canvas" width="120" height="120"></canvas>
+        <div class="radar-sweep-beam"></div>
+      </div>
+      <div class="radar-footer"><span class="radar-dist mono" id="radar-dist-val">DIST: 0m</span><span class="radar-home mono">HOME</span></div>
+    </div>
+
+    <!-- Quick Action Bar -->
+    <div class="floating-quick-bar">
+      <button class="cam-action-btn" id="btn-snapshot" title="Snapshot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg><span>FPV CAP</span></button>
+      <button class="cam-action-btn" id="btn-toggle-svs" title="Toggle SVS"><span id="svs-btn-text">SVS 3D</span></button>
+      <button class="cam-action-btn" id="btn-recenter" title="Reset Controls"><span>RESET</span></button>
     </div>
   </main>
 
-  <!-- ==================== 3. MODERN FLOATING COCKPIT DOCK ==================== -->
+  <!-- ==================== 3. FLOATING COCKPIT DOCK ==================== -->
   <footer class="app-dock">
     <div class="dock-glass-bar">
 
-      <!-- Left Module: Throttle + Yaw -->
+      <!-- Left Gimbal Pod: Throttle + Yaw -->
       <div class="control-pod pod-left">
         <div class="pod-header">
-          <span class="pod-title">Throttle / Yaw</span>
+          <div class="pod-title-wrap">
+            <span class="pod-title">THR / YAW</span>
+            <span class="pod-axis-tag desktop-only">CH3/4</span>
+          </div>
           <span class="pod-badge mono" id="hud-left-stick-coords">T: 1000 | Y: 1500</span>
         </div>
         
         <div class="joystick-combo">
-          <!-- Modern Precision Vertical Slider -->
-          <div class="slider-track-wrap">
-            <span class="slider-tag">MAX</span>
+          <!-- Desktop Throttle Fader -->
+          <div class="slider-track-wrap desktop-only" title="Throttle Fader">
             <input type="range" class="modern-slider" id="throttle-slider" min="1000" max="2000" value="1000" orient="vertical">
-            <span class="slider-tag">CUT</span>
+            <span class="throttle-pct-badge mono" id="throttle-pct-badge">0%</span>
           </div>
 
-          <!-- Tactile Minimal Joystick -->
-          <div class="joystick-pad" id="stick-left">
-            <div class="pad-subtle-ring"></div>
-            <div class="pad-axis pad-axis-x"></div>
-            <div class="pad-axis pad-axis-y"></div>
-            <div class="joystick-handle" id="knob-left">
-              <div class="handle-pip"></div>
+          <!-- Milled Left Gimbal -->
+          <div class="gimbal-wrapper">
+            <div class="joystick-pad" id="stick-left">
+              <div class="gimbal-milled-ring"></div>
+              <div class="gimbal-subtle-ring"></div>
+              <div class="pad-axis pad-axis-x"></div>
+              <div class="pad-axis pad-axis-y"></div>
+              <div class="joystick-handle" id="knob-left">
+                <div class="knurl-pattern"></div>
+                <div class="handle-pip"></div>
+              </div>
+            </div>
+            <!-- Sub-Trim Bar (Desktop Only) -->
+            <div class="trim-bar trim-yaw desktop-only">
+              <button class="trim-btn" id="trim-yaw-left">◀</button>
+              <span class="trim-readout mono" id="trim-yaw-val">0</span>
+              <button class="trim-btn" id="trim-yaw-right">▶</button>
             </div>
           </div>
         </div>
-        <div class="pod-footer">Keyboard: <b>[W/S]</b> Throttle &bull; <b>[A/D]</b> Yaw</div>
+
+        <!-- Keyboard Guide (Desktop Only) -->
+        <div class="pod-footer-keys desktop-only">
+          <span class="footer-label">Keys:</span>
+          <span class="k-chip" id="k-w">W</span>
+          <span class="k-chip" id="k-s">S</span>
+          <span class="k-divider">&bull;</span>
+          <span class="k-chip" id="k-a">A</span>
+          <span class="k-chip" id="k-d">D</span>
+        </div>
       </div>
 
-      <!-- Center Console: Flight Mode Selector & Telemetry Monitor -->
+      <!-- Center Console: Autopilot Modes & Diagnostics -->
       <div class="control-pod pod-center">
-        <!-- Segmented Mode Control (Tesla / Apple VisionOS Style) -->
+        <!-- Segmented Mode Control -->
         <div class="segmented-control">
-          <button class="segment-btn active" data-fmode="MANUAL">Stabilize</button>
-          <button class="segment-btn" data-fmode="ALT_HOLD">Altitude Hold</button>
-          <button class="segment-btn" data-fmode="SPORT">Sport</button>
-          <button class="segment-btn" data-fmode="RTL">Auto RTL</button>
+          <button class="segment-btn active" data-fmode="MANUAL"><span>STABILIZE</span></button>
+          <button class="segment-btn" data-fmode="ALT_HOLD"><span>ALT HOLD</span></button>
+          <button class="segment-btn desktop-only" data-fmode="LOITER"><span>LOITER</span></button>
+          <button class="segment-btn" data-fmode="SPORT"><span>SPORT</span></button>
+          <button class="segment-btn seg-rtl" data-fmode="RTL"><span>AUTO RTL</span></button>
         </div>
 
-        <!-- System Diagnostic Strip -->
+        <!-- Diagnostic Strip -->
         <div class="diagnostic-strip">
           <div class="gamepad-badge" id="gamepad-status-pill">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="6" width="20" height="12" rx="6"></rect>
               <line x1="6" y1="12" x2="10" y2="12"></line>
               <line x1="8" y1="10" x2="8" y2="14"></line>
-              <line x1="15" y1="13" x2="15.01" y2="13"></line>
-              <line x1="18" y1="11" x2="18.01" y2="11"></line>
-              <rect x="2" y="6" width="20" height="12" rx="6"></rect>
+              <circle cx="16" cy="12" r="1.5"></circle>
             </svg>
-            <span id="gamepad-status-text">Touch & Keyboard Mode</span>
+            <span id="gamepad-status-text">Touch &amp; Keys</span>
           </div>
 
           <div class="packet-preview mono" id="raw-packet-text">
             T:1000, Y:1500, P:1500, R:1500, A:0
           </div>
+
+          <div class="packet-rate-badge mono desktop-only">
+            <span class="dot-green"></span>
+            <span>50 HZ</span>
+          </div>
         </div>
       </div>
 
-      <!-- Right Module: Pitch + Roll -->
+      <!-- Right Gimbal Pod: Pitch + Roll -->
       <div class="control-pod pod-right">
         <div class="pod-header">
-          <span class="pod-title">Pitch / Roll</span>
+          <div class="pod-title-wrap">
+            <span class="pod-title">PITCH / ROLL</span>
+            <span class="pod-axis-tag desktop-only">CH2/1</span>
+          </div>
           <span class="pod-badge mono" id="hud-right-stick-coords">P: 1500 | R: 1500</span>
         </div>
         
         <div class="joystick-combo">
-          <div class="joystick-pad" id="stick-right">
-            <div class="pad-subtle-ring"></div>
-            <div class="pad-axis pad-axis-x"></div>
-            <div class="pad-axis pad-axis-y"></div>
-            <div class="joystick-handle" id="knob-right">
-              <div class="handle-pip"></div>
+          <!-- Desktop Pitch Trim -->
+          <div class="trim-bar-vertical trim-pitch desktop-only">
+            <button class="trim-btn" id="trim-pitch-up">▲</button>
+            <span class="trim-readout mono" id="trim-pitch-val">0</span>
+            <button class="trim-btn" id="trim-pitch-down">▼</button>
+          </div>
+
+          <!-- Milled Right Gimbal -->
+          <div class="gimbal-wrapper">
+            <div class="joystick-pad" id="stick-right">
+              <div class="gimbal-milled-ring"></div>
+              <div class="gimbal-subtle-ring"></div>
+              <div class="pad-axis pad-axis-x"></div>
+              <div class="pad-axis pad-axis-y"></div>
+              <div class="joystick-handle" id="knob-right">
+                <div class="knurl-pattern"></div>
+                <div class="handle-pip"></div>
+              </div>
+            </div>
+            <!-- Sub-Trim Bar (Desktop Only) -->
+            <div class="trim-bar trim-roll desktop-only">
+              <button class="trim-btn" id="trim-roll-left">◀</button>
+              <span class="trim-readout mono" id="trim-roll-val">0</span>
+              <button class="trim-btn" id="trim-roll-right">▶</button>
             </div>
           </div>
         </div>
-        <div class="pod-footer">Keyboard: <b>[Arrows]</b> Pitch &amp; Roll</div>
+
+        <!-- Keyboard Guide (Desktop Only) -->
+        <div class="pod-footer-keys desktop-only">
+          <span class="footer-label">Keys:</span>
+          <span class="k-chip" id="k-up">▲</span>
+          <span class="k-chip" id="k-down">▼</span>
+          <span class="k-divider">&bull;</span>
+          <span class="k-chip" id="k-left">◄</span>
+          <span class="k-chip" id="k-right">►</span>
+        </div>
       </div>
 
     </div>
   </footer>
+
+  <!-- ==================== 4. HARDWARE 3D AIRFRAME MODAL ==================== -->
+  <div class="hardware-modal-overlay" id="hardware-modal">
+    <div class="hardware-modal-content">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">🖨️</span>
+          <div>
+            <h3>3D Airframe CAD Specs</h3>
+            <p>Three.js Source-One V5 / Stealth Delta-Wing</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btn-modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <iframe id="hardware-iframe" src="/hardware/viewer.html" title="3D Hardware Viewer"></iframe>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
