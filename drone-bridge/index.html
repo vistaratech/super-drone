@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>SuperDrone | 5G Edge Bridge (Samsung Galaxy S21 FE)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    :root {
+      --bg-app: #080c14;
+      --bg-surface: rgba(15, 23, 42, 0.75);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --accent-blue: #3b82f6;
+      --accent-emerald: #10b981;
+      --accent-rose: #ef4444;
+      --text-main: #f8fafc;
+      --text-secondary: #94a3b8;
+      --font-sans: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #0f172a 0%, #080c14 100%);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Header */
+    .header-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 16px 20px;
+      backdrop-filter: blur(20px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .header-titles h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
+
+    .header-titles p {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .device-chip {
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent-blue);
+      text-align: right;
+    }
+
+    /* Status Grid */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .status-tile {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      backdrop-filter: blur(20px);
+    }
+
+    .status-tile .tile-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .status-tile .status-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-rose);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-tile .status-badge.connected {
+      color: var(--accent-emerald);
+    }
+
+    /* Action Buttons */
+    .action-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-action {
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-ble {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+    .btn-ble:hover {
+      background: #334155;
+    }
+
+    .btn-stream {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+    .btn-stream:hover {
+      background: #2563eb;
+    }
+
+    /* Preview Card */
+    .preview-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+    }
+
+    .preview-header {
+      padding: 10px 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #local-preview {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      background: #020617;
+      display: block;
+    }
+
+    /* Terminal */
+    .log-card {
+      background: #040812;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+
+    .log-header {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    pre#log-box {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-emerald);
+      max-height: 110px;
+      overflow-y: auto;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-card">
+      <div class="header-titles">
+        <h1>SuperDrone 5G Edge</h1>
+        <p>BVLOS Cellular-to-BLE Gateway</p>
+      </div>
+      <div class="device-chip">Galaxy S21 FE</div>
+    </div>
+
+    <div class="status-grid">
+      <div class="status-tile">
+        <span class="tile-label">5G Relay</span>
+        <div class="status-badge" id="srv-status">Connecting...</div>
+      </div>
+      <div class="status-tile">
+        <span class="tile-label">ESP32 BLE</span>
+        <div class="status-badge" id="ble-status">Disconnected</div>
+      </div>
+      <div class="status-tile">
+        <span class="tile-label">Camera</span>
+        <div class="status-badge" id="cam-status">Standby</div>
+      </div>
+    </div>
+
+    <div class="action-stack">
+      <button class="btn-action btn-ble" id="btn-connect-ble">
+        Connect ESP32 (BLE)
+      </button>
+      <button class="btn-action btn-stream" id="btn-start-stream">
+        Start 1080p 60FPS Stream
+      </button>
+    </div>
+
+    <div class="preview-card">
+      <div class="preview-header">
+        <span>Camera Viewport</span>
+        <span style="color:var(--accent-emerald);">60 FPS Ready</span>
+      </div>
+      <video id="local-preview" autoplay playsinline muted></video>
+    </div>
+
+    <div class="log-card">
+      <div class="log-header">
+        <span>Packet Terminal</span>
+        <span style="color:var(--accent-blue);">50 Hz Stream</span>
+      </div>
+      <pre id="log-box">[System] Edge Gateway Ready. Connect BLE and Camera stream...</pre>
+    </div>
+  </div>
+
+  <script src="bridge.js"></script>
+</body>
+</html>
