@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super-Drone | 3D Frame Viewer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+        #viewer {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .info-panel {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            background: rgba(10, 10, 20, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 200, 255, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            min-width: 260px;
+            z-index: 10;
+        }
+        .info-panel h1 {
+            font-size: 16px;
+            color: #00c8ff;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .info-panel p {
+            font-size: 12px;
+            color: #8899aa;
+            line-height: 1.6;
+        }
+        .info-panel .stat {
+            color: #00ffaa;
+            font-weight: 600;
+        }
+        .controls-hint {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 20, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-size: 11px;
+            color: #667788;
+            z-index: 10;
+        }
+        .part-selector {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(10, 10, 20, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 200, 255, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            z-index: 10;
+        }
+        .part-selector h2 {
+            font-size: 13px;
+            color: #00c8ff;
+            margin-bottom: 8px;
+        }
+        .part-btn {
+            display: block;
+            width: 100%;
+            padding: 6px 12px;
+            margin: 4px 0;
+            background: rgba(0, 200, 255, 0.08);
+            border: 1px solid rgba(0, 200, 255, 0.2);
+            border-radius: 6px;
+            color: #aabbcc;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        .part-btn:hover {
+            background: rgba(0, 200, 255, 0.2);
+            color: #00ffdd;
+            border-color: rgba(0, 200, 255, 0.5);
+        }
+        .part-btn.active {
+            background: rgba(0, 200, 255, 0.25);
+            color: #00ffdd;
+            border-color: #00c8ff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="viewer"></canvas>
+    
+    <div class="info-panel">
+        <h1>🛸 SUPER-DRONE FRAME</h1>
+        <p>
+            Wheelbase: <span class="stat">226mm</span> (True-X)<br>
+            Arms: <span class="stat">7mm</span> thick (3D print optimized)<br>
+            Stack: <span class="stat">30.5 + 20mm</span> dual mount<br>
+            Motors: <span class="stat">2207</span> (16×19mm M3)<br>
+            Triangles: <span class="stat" id="tri-count">—</span><br>
+            Material: <span class="stat">PETG / CF-PETG</span>
+        </p>
+    </div>
+    
+    <div class="part-selector">
+        <h2>PARTS</h2>
+        <button class="part-btn active" data-file="full_frame_assembled.stl">★ Full Assembly</button>
+        <button class="part-btn" data-file="bottom_plate.stl">Bottom Plate</button>
+        <button class="part-btn" data-file="top_plate.stl">Top Plate</button>
+        <button class="part-btn" data-file="arm_front_right.stl">Arm (Front-Right)</button>
+        <button class="part-btn" data-file="arm_front_left.stl">Arm (Front-Left)</button>
+        <button class="part-btn" data-file="arm_rear_left.stl">Arm (Rear-Left)</button>
+        <button class="part-btn" data-file="arm_rear_right.stl">Arm (Rear-Right)</button>
+        <button class="part-btn" data-file="camera_mount_micro.stl">Camera Mount</button>
+        <button class="part-btn" data-file="battery_pad.stl">Battery Pad</button>
+        <button class="part-btn" data-file="s21fe_fpv_cradle.stl">S21 FE Cradle</button>
+    </div>
+    
+    <div class="controls-hint">
+        🖱️ Left Drag: Rotate &nbsp;|&nbsp; Right Drag: Pan &nbsp;|&nbsp; Scroll: Zoom
+    </div>
+    
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+    (function() {
+        // Scene setup
+        const canvas = document.getElementById('viewer');
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setClearColor(0x0a0a12, 1);
+        renderer.shadowMap.enabled = true;
+        
+        const scene = new THREE.Scene();
+        
+        // Camera
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 2000);
+        camera.position.set(200, 150, 250);
+        camera.lookAt(0, 0, 0);
+        
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0x334466, 0.6);
+        scene.add(ambientLight);
+        
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        dirLight.position.set(100, 200, 150);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+        
+        const fillLight = new THREE.DirectionalLight(0x00aaff, 0.3);
+        fillLight.position.set(-100, 50, -100);
+        scene.add(fillLight);
+        
+        const rimLight = new THREE.DirectionalLight(0xff6600, 0.2);
+        rimLight.position.set(0, -100, 0);
+        scene.add(rimLight);
+        
+        // Grid helper
+        const gridHelper = new THREE.GridHelper(400, 40, 0x1a2a3a, 0x0d1520);
+        gridHelper.position.y = -20;
+        scene.add(gridHelper);
+        
+        // Axes helper
+        const axesHelper = new THREE.AxesHelper(50);
+        scene.add(axesHelper);
+        
+        // Material for frame
+        const frameMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x1a1a2e,
+            metalness: 0.4,
+            roughness: 0.35,
+            clearcoat: 0.3,
+            clearcoatRoughness: 0.2,
+            side: THREE.DoubleSide,
+        });
+        
+        let currentMesh = null;
+        
+        // Binary STL parser
+        function parseSTL(buffer) {
+            const dv = new DataView(buffer);
+            const numTriangles = dv.getUint32(80, true);
+            document.getElementById('tri-count').textContent = numTriangles.toLocaleString();
+            
+            const geometry = new THREE.BufferGeometry();
+            const vertices = new Float32Array(numTriangles * 9);
+            const normals = new Float32Array(numTriangles * 9);
+            
+            let offset = 84;
+            for (let i = 0; i < numTriangles; i++) {
+                // Normal
+                const nx = dv.getFloat32(offset, true); offset += 4;
+                const ny = dv.getFloat32(offset, true); offset += 4;
+                const nz = dv.getFloat32(offset, true); offset += 4;
+                
+                for (let j = 0; j < 3; j++) {
+                    const vi = i * 9 + j * 3;
+                    vertices[vi]     = dv.getFloat32(offset, true); offset += 4;
+                    vertices[vi + 1] = dv.getFloat32(offset, true); offset += 4;
+                    vertices[vi + 2] = dv.getFloat32(offset, true); offset += 4;
+                    normals[vi]     = nx;
+                    normals[vi + 1] = ny;
+                    normals[vi + 2] = nz;
+                }
+                offset += 2; // attribute byte count
+            }
+            
+            geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+            geometry.computeBoundingBox();
+            
+            return geometry;
+        }
+        
+        // Load STL file
+        function loadSTL(filename) {
+            const path = `models/${filename}`;
+            fetch(path)
+                .then(r => r.arrayBuffer())
+                .then(buffer => {
+                    if (currentMesh) scene.remove(currentMesh);
+                    
+                    const geometry = parseSTL(buffer);
+                    currentMesh = new THREE.Mesh(geometry, frameMaterial);
+                    currentMesh.castShadow = true;
+                    currentMesh.receiveShadow = true;
+                    
+                    // Center the model
+                    geometry.computeBoundingBox();
+                    const center = geometry.boundingBox.getCenter(new THREE.Vector3());
+                    currentMesh.position.sub(center);
+                    
+                    scene.add(currentMesh);
+                })
+                .catch(e => console.error('Failed to load:', filename, e));
+        }
+        
+        // Part selector buttons
+        document.querySelectorAll('.part-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.part-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadSTL(btn.dataset.file);
+            });
+        });
+        
+        // Orbit controls (manual implementation)
+        let isDragging = false;
+        let isRightDrag = false;
+        let prevX = 0, prevY = 0;
+        let rotX = -0.4, rotY = 0.6;
+        let panX = 0, panY = 0;
+        let zoom = 300;
+        
+        canvas.addEventListener('mousedown', e => {
+            isDragging = true;
+            isRightDrag = e.button === 2;
+            prevX = e.clientX;
+            prevY = e.clientY;
+        });
+        
+        canvas.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            const dx = e.clientX - prevX;
+            const dy = e.clientY - prevY;
+            
+            if (isRightDrag) {
+                panX += dx * 0.5;
+                panY -= dy * 0.5;
+            } else {
+                rotY += dx * 0.005;
+                rotX += dy * 0.005;
+                rotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, rotX));
+            }
+            
+            prevX = e.clientX;
+            prevY = e.clientY;
+        });
+        
+        canvas.addEventListener('mouseup', () => isDragging = false);
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+        
+        canvas.addEventListener('wheel', e => {
+            zoom += e.deltaY * 0.3;
+            zoom = Math.max(50, Math.min(800, zoom));
+        });
+        
+        // Touch support
+        let touchStartDist = 0;
+        canvas.addEventListener('touchstart', e => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                prevX = e.touches[0].clientX;
+                prevY = e.touches[0].clientY;
+            } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                touchStartDist = Math.sqrt(dx*dx + dy*dy);
+            }
+        });
+        
+        canvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            if (e.touches.length === 1 && isDragging) {
+                const dx = e.touches[0].clientX - prevX;
+                const dy = e.touches[0].clientY - prevY;
+                rotY += dx * 0.005;
+                rotX += dy * 0.005;
+                rotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, rotX));
+                prevX = e.touches[0].clientX;
+                prevY = e.touches[0].clientY;
+            } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                zoom += (touchStartDist - dist) * 0.5;
+                zoom = Math.max(50, Math.min(800, zoom));
+                touchStartDist = dist;
+            }
+        }, { passive: false });
+        
+        canvas.addEventListener('touchend', () => isDragging = false);
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update camera from orbit controls
+            camera.position.x = Math.sin(rotY) * Math.cos(rotX) * zoom + panX;
+            camera.position.y = Math.sin(rotX) * zoom + panY;
+            camera.position.z = Math.cos(rotY) * Math.cos(rotX) * zoom;
+            camera.lookAt(panX, panY, 0);
+            
+            // Subtle auto-rotate when not interacting
+            if (!isDragging) {
+                rotY += 0.002;
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Load default model
+        loadSTL('full_frame_assembled.stl');
+        animate();
+    })();
+    </script>
+</body>
+</html>
