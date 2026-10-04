@@ -27,11 +27,20 @@ Super-Drone/
 │   ├── SuperWing_ESP32.ino   # Stealth Delta Wing: 1 Pusher Motor + 2 Servos + MPU-6050 Gyro Auto-Level
 │   └── SuperDrone_ESP32.ino  # Quadcopter: 4 Brushless ESCs + Quad-X PID Stabilization
 │
-├── hardware/                 # 3D Printable STL Models & CAD Generators
-│   ├── generate_stl.py       # Procedural Python STL generator
+├── hardware/                 # 3D Printable FPV Quadcopter Frame (TBS Source One V5 Specs)
+│   ├── generate_stl.py       # Parametric Python STL generator (226mm wheelbase)
+│   ├── viewer.html           # Interactive 3D frame viewer (Three.js)
 │   └── models/
-│       ├── s21fe_fpv_nose_mount.stl       # Custom aerodynamic nose cradle for Samsung S21 FE
-│       └── motor_mount_pusher_2207.stl   # Rear 2207 brushless pusher motor mount
+│       ├── full_frame_assembled.stl   # ★ Complete assembled frame (preview)
+│       ├── bottom_plate.stl           # Chassis plate (30.5 + 20mm stack mounts)
+│       ├── top_plate.stl              # Top plate (antenna & buzzer mounts)
+│       ├── arm_front_right.stl        # Arm + 2207 motor mount (45°)
+│       ├── arm_front_left.stl         # Arm + 2207 motor mount (135°)
+│       ├── arm_rear_left.stl          # Arm + 2207 motor mount (225°)
+│       ├── arm_rear_right.stl         # Arm + 2207 motor mount (315°)
+│       ├── camera_mount_micro.stl     # 19mm micro FPV camera cradle (25° tilt)
+│       ├── battery_pad.stl            # Anti-slip battery landing pad
+│       └── s21fe_fpv_cradle.stl       # Samsung S21 FE phone mount (FPV camera)
 │
 └── docs/                     # Documentation & Technical Guides
     ├── stealth-wing-wiring-guide.md # Complete circuit diagram, pinouts & servo deflection check
@@ -69,7 +78,45 @@ npm start
 
 ---
 
-## 🖨️ 3D Printing Samsung S21 FE Mount
-The ready-to-print STL files are located in `hardware/models/`:
-* `s21fe_fpv_nose_mount.stl`: Aerodynamic nose cone cradle holding the Samsung S21 FE securely with camera aperture.
-* `motor_mount_pusher_2207.stl`: Rear pusher motor mount for 2207/2216 brushless motors.
+## 🖨️ 3D Printable FPV Quadcopter Frame
+
+The frame is designed based on the **TBS Source One V5** open-source specs, optimized for 3D printing.
+
+### Frame Specifications
+| Parameter | Value |
+|---|---|
+| **Wheelbase** | 226mm (True-X) |
+| **Prop Size** | 5-inch (127mm) |
+| **Arm Thickness** | 7mm (3D print optimized) |
+| **Stack Mount** | 30.5×30.5mm (M3) + 20×20mm (M2) |
+| **Motor Mount** | 16×19mm M3 bolt pattern (2207 motors) |
+| **Camera Mount** | 19mm micro (25° default tilt) |
+| **Standoff Height** | 25mm |
+
+### 3D Print Settings (Recommended)
+| Setting | Value |
+|---|---|
+| **Material** | PETG or CF-PETG (NOT PLA) |
+| **Layer Height** | 0.2mm |
+| **Infill** | 60%+ Gyroid pattern |
+| **Walls** | 4 minimum |
+| **Supports** | Yes (camera mount & phone cradle) |
+
+### Printable Parts (`hardware/models/`)
+| Part | File | Description |
+|---|---|---|
+| **Bottom Plate** | `bottom_plate.stl` | Main chassis with FC/ESC stack mounting holes |
+| **Top Plate** | `top_plate.stl` | Electronics protector with antenna & buzzer mounts |
+| **Arms (×4)** | `arm_*.stl` | Tapered arms with integrated 2207 motor mount tubes |
+| **Camera Mount** | `camera_mount_micro.stl` | 19mm micro FPV camera cradle at 25° tilt |
+| **Battery Pad** | `battery_pad.stl` | Anti-slip grid pad with strap guides |
+| **Phone Cradle** | `s21fe_fpv_cradle.stl` | Samsung S21 FE holder with camera aperture |
+| **Full Assembly** | `full_frame_assembled.stl` | ★ All parts combined (visualization only) |
+
+### Regenerate STL Files
+```bash
+python hardware/generate_stl.py
+```
+
+### 3D Viewer (Local)
+Open `http://localhost:3000/hardware/viewer.html` for interactive Three.js preview with orbit controls.
